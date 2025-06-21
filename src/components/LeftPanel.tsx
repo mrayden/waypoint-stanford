@@ -1,34 +1,57 @@
 
 import React, { useState } from 'react';
-import { Plus, Search, BookOpen, Sun, Target, Briefcase, Trophy } from 'lucide-react';
+import { Plus, Search, BookOpen, Sun, Target, Briefcase, Trophy, MapPin, Globe } from 'lucide-react';
 import { useGoalStore } from '../store/goalStore';
 import AddGoalModal from './AddGoalModal';
 
-const LeftPanel = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('add');
+interface LeftPanelProps {
+  activeTab: 'local' | 'marketplace';
+}
 
-  const quickActions = [
-    { id: 'course', icon: BookOpen, label: 'Add Course', color: 'blue' },
-    { id: 'summer', icon: Sun, label: 'Summer Program', color: 'yellow' },
-    { id: 'extracurricular', icon: Target, label: 'Extracurricular', color: 'green' },
-    { id: 'career', icon: Briefcase, label: 'Career Goal', color: 'purple' },
-    { id: 'sports', icon: Trophy, label: 'Sports', color: 'red' },
+const LeftPanel = ({ activeTab }: LeftPanelProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [panelTab, setPanelTab] = useState('add');
+
+  const localOpportunities = [
+    { id: 'local-research', icon: BookOpen, label: 'University Research', color: 'blue', description: 'Reach out to local professors' },
+    { id: 'local-hospital', icon: Target, label: 'Hospital Volunteer', color: 'red', description: 'Build medical experience locally' },
+    { id: 'local-government', icon: Briefcase, label: 'City Hall Internship', color: 'purple', description: 'Learn about local politics' },
+    { id: 'local-business', icon: Trophy, label: 'Local Business', color: 'green', description: 'Start or intern at local companies' },
+    { id: 'local-nonprofit', icon: Target, label: 'Community Service', color: 'yellow', description: 'Lead local volunteer projects' },
   ];
+
+  const marketplaceOpportunities = [
+    { id: 'market-summer', icon: Sun, label: 'Competitive Programs', color: 'yellow', description: 'RSI, TASP, Governor\'s School' },
+    { id: 'market-research', icon: BookOpen, label: 'National Research', color: 'blue', description: 'Science fairs, publications' },
+    { id: 'market-internship', icon: Briefcase, label: 'Tech Internships', color: 'purple', description: 'Google, Microsoft, startups' },
+    { id: 'market-competition', icon: Trophy, label: 'Competitions', color: 'green', description: 'USACO, USABO, debate nationals' },
+    { id: 'market-online', icon: Target, label: 'Online Ventures', color: 'red', description: 'YouTube, apps, online business' },
+  ];
+
+  const currentOpportunities = activeTab === 'local' ? localOpportunities : marketplaceOpportunities;
 
   return (
     <>
       <div className="w-80 bg-slate-800/50 backdrop-blur-sm border-r border-slate-700 p-6 overflow-y-auto">
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-white font-semibold text-lg mb-4">Plan Your Future</h2>
+          <div className="flex items-center gap-3 mb-4">
+            {activeTab === 'local' ? (
+              <MapPin className="text-green-400" size={20} />
+            ) : (
+              <Globe className="text-blue-400" size={20} />
+            )}
+            <h2 className="text-white font-semibold text-lg">
+              {activeTab === 'local' ? 'Local Opportunities' : 'Marketplace'}
+            </h2>
+          </div>
           
           {/* Tabs */}
           <div className="flex bg-slate-700/50 rounded-lg p-1 mb-4">
             <button
-              onClick={() => setActiveTab('add')}
+              onClick={() => setPanelTab('add')}
               className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'add' 
+                panelTab === 'add' 
                   ? 'bg-indigo-600 text-white' 
                   : 'text-slate-300 hover:text-white'
               }`}
@@ -36,9 +59,9 @@ const LeftPanel = () => {
               Add Goals
             </button>
             <button
-              onClick={() => setActiveTab('search')}
+              onClick={() => setPanelTab('explore')}
               className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'search' 
+                panelTab === 'explore' 
                   ? 'bg-indigo-600 text-white' 
                   : 'text-slate-300 hover:text-white'
               }`}
@@ -48,7 +71,7 @@ const LeftPanel = () => {
           </div>
         </div>
 
-        {activeTab === 'add' && (
+        {panelTab === 'add' && (
           <div className="space-y-4">
             {/* Quick Add Button */}
             <button
@@ -59,79 +82,107 @@ const LeftPanel = () => {
               Create New Goal
             </button>
 
-            {/* Quick Actions */}
+            {/* Opportunity Categories */}
             <div className="space-y-3">
-              <h3 className="text-slate-300 font-medium text-sm">Quick Add</h3>
-              {quickActions.map(action => (
+              <h3 className="text-slate-300 font-medium text-sm">
+                {activeTab === 'local' ? 'Local Focus Areas' : 'Competitive Areas'}
+              </h3>
+              {currentOpportunities.map(opportunity => (
                 <button
-                  key={action.id}
+                  key={opportunity.id}
                   onClick={() => setIsModalOpen(true)}
-                  className="w-full flex items-center gap-3 p-3 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-slate-200 hover:text-white transition-all duration-200 hover:scale-105 group"
+                  className="w-full p-3 bg-slate-700/50 hover:bg-slate-700 rounded-lg transition-all duration-200 hover:scale-105 group text-left"
                 >
-                  <action.icon size={18} className="text-slate-400 group-hover:text-white" />
-                  <span className="text-sm">{action.label}</span>
+                  <div className="flex items-start gap-3">
+                    <opportunity.icon size={18} className="text-slate-400 group-hover:text-white mt-0.5" />
+                    <div className="flex-1">
+                      <div className="text-white text-sm font-medium">{opportunity.label}</div>
+                      <div className="text-slate-400 text-xs mt-1">{opportunity.description}</div>
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
 
-            {/* Recent Suggestions */}
-            <div className="mt-6 space-y-3">
-              <h3 className="text-slate-300 font-medium text-sm">Suggestions</h3>
-              <div className="space-y-2">
-                {[
-                  { title: 'AP Computer Science', type: 'course', icon: '💻' },
-                  { title: 'NASA USRP Internship', type: 'summer', icon: '🚀' },
-                  { title: 'Debate Team', type: 'extracurricular', icon: '🗣️' },
-                ].map((suggestion, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 bg-slate-700/30 rounded-lg border border-slate-600/50 hover:border-slate-500 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span>{suggestion.icon}</span>
-                      <div>
-                        <p className="text-white text-sm font-medium">{suggestion.title}</p>
-                        <p className="text-slate-400 text-xs capitalize">{suggestion.type}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            {/* Tips Section */}
+            <div className="mt-6 p-4 bg-slate-700/30 rounded-lg border border-slate-600/50">
+              <h4 className="text-white font-medium text-sm mb-2">
+                {activeTab === 'local' ? 'Local Strategy Tips:' : 'Marketplace Strategy Tips:'}
+              </h4>
+              <ul className="text-slate-300 text-xs space-y-1">
+                {activeTab === 'local' ? (
+                  <>
+                    <li>• Email professors at nearby universities</li>
+                    <li>• Visit local hospitals, nonprofits, government offices</li>
+                    <li>• Network through family, school connections</li>
+                    <li>• Lower competition, easier to get started</li>
+                  </>
+                ) : (
+                  <>
+                    <li>• Apply early - deadlines are often months ahead</li>
+                    <li>• Strong application essays are crucial</li>
+                    <li>• Build portfolio/credentials first</li>
+                    <li>• Higher competition but greater recognition</li>
+                  </>
+                )}
+              </ul>
             </div>
           </div>
         )}
 
-        {activeTab === 'search' && (
+        {panelTab === 'explore' && (
           <div className="space-y-4">
             {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
               <input
                 type="text"
-                placeholder="Search courses, programs, careers..."
+                placeholder={`Search ${activeTab} opportunities...`}
                 className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
 
-            {/* Search Categories */}
+            {/* Browse Categories */}
             <div className="space-y-3">
-              <h3 className="text-slate-300 font-medium text-sm">Browse by Category</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { name: 'Universities', icon: '🎓', count: '2,847' },
-                  { name: 'Courses', icon: '📚', count: '450' },
-                  { name: 'Programs', icon: '🌟', count: '180' },
-                  { name: 'Careers', icon: '💼', count: '320' },
-                ].map(category => (
-                  <button
-                    key={category.name}
-                    className="p-3 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors text-left"
-                  >
-                    <div className="text-lg mb-1">{category.icon}</div>
-                    <div className="text-white text-sm font-medium">{category.name}</div>
-                    <div className="text-slate-400 text-xs">{category.count} options</div>
-                  </button>
-                ))}
+              <h3 className="text-slate-300 font-medium text-sm">Browse Categories</h3>
+              <div className="grid grid-cols-1 gap-2">
+                {activeTab === 'local' ? (
+                  <>
+                    <div className="p-3 bg-slate-700/30 rounded-lg">
+                      <div className="text-lg mb-1">🏥</div>
+                      <div className="text-white text-sm font-medium">Healthcare</div>
+                      <div className="text-slate-400 text-xs">Hospitals, clinics, research</div>
+                    </div>
+                    <div className="p-3 bg-slate-700/30 rounded-lg">
+                      <div className="text-lg mb-1">🏛️</div>
+                      <div className="text-white text-sm font-medium">Government</div>
+                      <div className="text-slate-400 text-xs">City hall, courts, agencies</div>
+                    </div>
+                    <div className="p-3 bg-slate-700/30 rounded-lg">
+                      <div className="text-lg mb-1">🎓</div>
+                      <div className="text-white text-sm font-medium">Universities</div>
+                      <div className="text-slate-400 text-xs">Research labs, professors</div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="p-3 bg-slate-700/30 rounded-lg">
+                      <div className="text-lg mb-1">🚀</div>
+                      <div className="text-white text-sm font-medium">STEM Programs</div>
+                      <div className="text-slate-400 text-xs">RSI, Garcia, Clark Scholar</div>
+                    </div>
+                    <div className="p-3 bg-slate-700/30 rounded-lg">
+                      <div className="text-lg mb-1">💼</div>
+                      <div className="text-white text-sm font-medium">Business</div>
+                      <div className="text-slate-400 text-xs">Internships, competitions</div>
+                    </div>
+                    <div className="p-3 bg-slate-700/30 rounded-lg">
+                      <div className="text-lg mb-1">🎨</div>
+                      <div className="text-white text-sm font-medium">Arts & Humanities</div>
+                      <div className="text-slate-400 text-xs">Writing, debate, art programs</div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

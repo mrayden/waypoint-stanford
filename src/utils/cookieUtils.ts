@@ -10,6 +10,8 @@ export interface UserData {
   weightedGpa?: string;
   apCourses?: string[];
   ibCourses?: string[];
+  regularCourses?: string[];
+  collegePrepCourses?: string[];
   plannedCourses?: string[];
   financialSituation?: string;
   interests: string[];
