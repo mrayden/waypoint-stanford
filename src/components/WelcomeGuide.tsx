@@ -114,6 +114,8 @@ const WelcomeGuide = ({ onClose }: WelcomeGuideProps) => {
     onClose();
   };
 
+  const IconComponent = slides[currentSlide].icon;
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
       <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 max-w-2xl w-full shadow-2xl">
@@ -121,7 +123,7 @@ const WelcomeGuide = ({ onClose }: WelcomeGuideProps) => {
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center">
-              <slides[currentSlide].icon size={20} className="text-white" />
+              <IconComponent size={20} className="text-white" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">{slides[currentSlide].title}</h2>
