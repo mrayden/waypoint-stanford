@@ -5,8 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { saveUserData } from '../utils/cookieUtils';
 
 interface University {
-  institution: string;
-  state?: string;
+  name: string;
+  country: string;
+  domains: string[];
+  web_pages: string[];
+  'state-province'?: string;
+  alpha_two_code: string;
 }
 
 interface Degree {
@@ -16,10 +20,26 @@ interface Degree {
 }
 
 interface HighSchool {
-  'School Name': string;
-  'State Name [Public School] Latest available year': string;
-  'State Abbr [Public School] Latest available year': string;
-  'School Type [Public School] 2019-20': string;
+  name: string;
+  location: {
+    state: {
+      name: string;
+      abbr: string;
+    };
+  };
+  district: string;
+  level: string;
+  type: string;
+  charterSchool: string;
+  magnetSchool: string;
+  locale: string;
+  grades: {
+    lowest: string;
+    highest: string;
+  };
+  students: string;
+  fte: string;
+  pupilTeacherRatio: string;
 }
 
 const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
@@ -31,6 +51,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     location: '',
     currentSchool: '',
     schoolType: '', // public, private, or custom
+    selectedState: '', // for high school search
     gpa: '',
     weightedGpa: '',
     apCourses: [] as string[],
@@ -56,7 +77,12 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [isLoadingUniversities, setIsLoadingUniversities] = useState(false);
   const [isLoadingDegrees, setIsLoadingDegrees] = useState(false);
   const [isLoadingSchools, setIsLoadingSchools] = useState(false);
+  const [loadUniversities, setLoadUniversities] = useState(false);
   const [loadHighSchools, setLoadHighSchools] = useState(false);
+
+  const stateAbbreviations = [
+    'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY'
+  ];
 
   useEffect(() => {
     fetchUniversities();
@@ -66,19 +92,25 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const fetchUniversities = async () => {
     setIsLoadingUniversities(true);
     try {
-      const response = await fetch('https://gist.githubusercontent.com/hakimelek/147f364c449104ba66da9a3baca9d0c0/raw/7e914fc578d3176f1f752f571f5b3761ea2b22fa/us_institutions.json');
+      const response = await fetch('https://raw.githubusercontent.com/Hipo/university-domains-list/refs/heads/master/world_universities_and_domains.json');
       if (!response.ok) throw new Error('Failed to fetch universities');
       const data = await response.json();
-      setUniversities(data.slice(0, 200)); // Limit for performance
+      
+      // Filter for US universities and sort alphabetically
+      const usUniversities = data.filter((uni: University) => uni.alpha_two_code === 'US');
+      usUniversities.sort((a: University, b: University) => a.name.localeCompare(b.name));
+      
+      setUniversities(usUniversities);
+      console.log(`Loaded ${usUniversities.length} US universities`);
     } catch (error) {
       console.log('University API failed:', error);
       // Fallback data
       setUniversities([
-        { institution: 'Harvard University' },
-        { institution: 'Stanford University' },
-        { institution: 'Massachusetts Institute of Technology' },
-        { institution: 'University of California, Berkeley' },
-        { institution: 'Princeton University' },
+        { name: 'Harvard University', country: 'United States', domains: ['harvard.edu'], web_pages: ['https://www.harvard.edu/'], alpha_two_code: 'US' },
+        { name: 'Stanford University', country: 'United States', domains: ['stanford.edu'], web_pages: ['https://www.stanford.edu/'], alpha_two_code: 'US' },
+        { name: 'Massachusetts Institute of Technology', country: 'United States', domains: ['mit.edu'], web_pages: ['https://www.mit.edu/'], alpha_two_code: 'US' },
+        { name: 'University of California, Berkeley', country: 'United States', domains: ['berkeley.edu'], web_pages: ['https://www.berkeley.edu/'], alpha_two_code: 'US' },
+        { name: 'Princeton University', country: 'United States', domains: ['princeton.edu'], web_pages: ['https://www.princeton.edu/'], alpha_two_code: 'US' },
       ]);
     } finally {
       setIsLoadingUniversities(false);
@@ -100,30 +132,32 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     }
   };
 
-  const fetchHighSchools = async () => {
-    if (isLoadingSchools || highSchools.length > 0) return;
+  const fetchHighSchools = async (stateAbbr: string) => {
+    if (isLoadingSchools) return;
     
     setIsLoadingSchools(true);
+    setHighSchools([]); // Clear previous results
+    
     try {
-      const response = await fetch('https://raw.githubusercontent.com/nicelion/schools-and-districts/refs/heads/master/csv/schools.csv');
-      if (!response.ok) throw new Error('Failed to fetch schools');
-      const csvText = await response.text();
+      const response = await fetch(`https://raw.githubusercontent.com/nicelion/schools-and-districts/refs/heads/master/schools/${stateAbbr}.json`);
+      if (!response.ok) throw new Error(`Failed to fetch schools for ${stateAbbr}`);
+      const data = await response.json();
       
-      // Parse CSV
-      const lines = csvText.split('\n');
-      const headers = lines[0].split(',');
-      const schools = lines.slice(1, 1000).map(line => { // Limit to first 1000 for performance
-        const values = line.split(',');
-        const school: any = {};
-        headers.forEach((header, index) => {
-          school[header] = values[index];
-        });
-        return school as HighSchool;
-      }).filter(school => school['School Name']);
+      // Filter for high schools and sort alphabetically
+      const highSchoolsOnly = data.filter((school: HighSchool) => 
+        school.level && (
+          school.level.toLowerCase().includes('high') || 
+          school.level.toLowerCase().includes('secondary') ||
+          school.grades?.highest?.includes('12')
+        )
+      );
       
-      setHighSchools(schools);
+      highSchoolsOnly.sort((a: HighSchool, b: HighSchool) => a.name.localeCompare(b.name));
+      
+      setHighSchools(highSchoolsOnly);
+      console.log(`Loaded ${highSchoolsOnly.length} high schools for ${stateAbbr}`);
     } catch (error) {
-      console.log('High schools API failed:', error);
+      console.log(`High schools API failed for ${stateAbbr}:`, error);
       setHighSchools([]);
     } finally {
       setIsLoadingSchools(false);
@@ -131,7 +165,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   };
 
   const filteredUniversities = universities.filter(uni =>
-    uni.institution.toLowerCase().includes(universitySearch.toLowerCase())
+    uni.name.toLowerCase().includes(universitySearch.toLowerCase())
   );
 
   const filteredDegrees = degrees.filter(degree =>
@@ -139,7 +173,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   );
 
   const filteredHighSchools = highSchools.filter(school =>
-    school['School Name'].toLowerCase().includes(schoolSearch.toLowerCase())
+    school.name.toLowerCase().includes(schoolSearch.toLowerCase())
   );
 
   const apCourses = [
@@ -401,7 +435,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               </label>
               <div className="grid grid-cols-1 gap-3 mb-4">
                 <button
-                  onClick={() => setFormData({ ...formData, schoolType: 'public', currentSchool: '' })}
+                  onClick={() => setFormData({ ...formData, schoolType: 'public', currentSchool: '', selectedState: '' })}
                   className={`p-4 rounded-lg border text-left transition-all ${
                     formData.schoolType === 'public'
                       ? 'bg-indigo-600 border-indigo-500 text-white'
@@ -412,7 +446,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   <div className="text-sm opacity-75">Search from US public schools database</div>
                 </button>
                 <button
-                  onClick={() => setFormData({ ...formData, schoolType: 'private', currentSchool: '' })}
+                  onClick={() => setFormData({ ...formData, schoolType: 'private', currentSchool: '', selectedState: '' })}
                   className={`p-4 rounded-lg border text-left transition-all ${
                     formData.schoolType === 'private'
                       ? 'bg-orange-600 border-orange-500 text-white'
@@ -423,7 +457,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   <div className="text-sm opacity-75">Enter your school name manually</div>
                 </button>
                 <button
-                  onClick={() => setFormData({ ...formData, schoolType: 'custom', currentSchool: '' })}
+                  onClick={() => setFormData({ ...formData, schoolType: 'custom', currentSchool: '', selectedState: '' })}
                   className={`p-4 rounded-lg border text-left transition-all ${
                     formData.schoolType === 'custom'
                       ? 'bg-green-600 border-green-500 text-white'
@@ -437,50 +471,78 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
               {formData.schoolType === 'public' && (
                 <div>
-                  <button
-                    onClick={() => {
-                      setLoadHighSchools(true);
-                      fetchHighSchools();
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Select your state first:
+                  </label>
+                  <Select
+                    value={formData.selectedState}
+                    onValueChange={(value) => {
+                      setFormData({ ...formData, selectedState: value, currentSchool: '' });
+                      setHighSchools([]);
+                      setLoadHighSchools(false);
                     }}
-                    className={`w-full p-3 rounded-lg border transition-all mb-4 ${
-                      loadHighSchools 
-                        ? 'bg-indigo-600 border-indigo-500 text-white' 
-                        : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
-                    }`}
                   >
-                    {loadHighSchools ? 'Loading school database...' : 'Load US Public Schools Database'}
-                  </button>
+                    <SelectTrigger className="w-full mb-4">
+                      <SelectValue placeholder="Choose your state..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stateAbbreviations.map(state => (
+                        <SelectItem key={state} value={state}>{state}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   
-                  {loadHighSchools && (
+                  {formData.selectedState && (
                     <div>
-                      <input
-                        type="text"
-                        value={schoolSearch}
-                        onChange={(e) => setSchoolSearch(e.target.value)}
-                        placeholder="Search your public high school..."
-                        className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
-                      />
+                      <button
+                        onClick={() => {
+                          setLoadHighSchools(true);
+                          fetchHighSchools(formData.selectedState);
+                        }}
+                        className={`w-full p-3 rounded-lg border transition-all mb-4 ${
+                          loadHighSchools 
+                            ? 'bg-indigo-600 border-indigo-500 text-white' 
+                            : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                        }`}
+                        disabled={isLoadingSchools}
+                      >
+                        {isLoadingSchools ? `Loading ${formData.selectedState} schools...` : 
+                         loadHighSchools ? `${highSchools.length} schools loaded` : 
+                         `Load High Schools for ${formData.selectedState}`}
+                      </button>
                       
-                      {isLoadingSchools ? (
-                        <div className="text-center text-slate-400 py-4">Loading schools...</div>
-                      ) : (
-                        <div className="max-h-40 overflow-y-auto space-y-2">
-                          {filteredHighSchools.slice(0, 20).map((school, index) => (
-                            <button
-                              key={index}
-                              onClick={() => setFormData({ ...formData, currentSchool: school['School Name'] })}
-                              className={`w-full p-3 rounded-lg border text-left transition-all ${
-                                formData.currentSchool === school['School Name']
-                                  ? 'bg-indigo-600 border-indigo-500 text-white'
-                                  : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
-                              }`}
-                            >
-                              <div className="font-medium">{school['School Name']}</div>
-                              <div className="text-sm opacity-75">
-                                {school['State Name [Public School] Latest available year']} • {school['School Type [Public School] 2019-20']}
-                              </div>
-                            </button>
-                          ))}
+                      {loadHighSchools && (
+                        <div>
+                          <input
+                            type="text"
+                            value={schoolSearch}
+                            onChange={(e) => setSchoolSearch(e.target.value)}
+                            placeholder="Search your high school..."
+                            className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                          />
+                          
+                          {isLoadingSchools ? (
+                            <div className="text-center text-slate-400 py-4">Loading schools...</div>
+                          ) : (
+                            <div className="max-h-40 overflow-y-auto space-y-2">
+                              {filteredHighSchools.slice(0, 20).map((school, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => setFormData({ ...formData, currentSchool: school.name })}
+                                  className={`w-full p-3 rounded-lg border text-left transition-all ${
+                                    formData.currentSchool === school.name
+                                      ? 'bg-indigo-600 border-indigo-500 text-white'
+                                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                                  }`}
+                                >
+                                  <div className="font-medium">{school.name}</div>
+                                  <div className="text-sm opacity-75">
+                                    {school.district} • {school.level} • {school.type}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -838,38 +900,60 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
             <label className="block text-sm font-medium text-slate-300 mb-4">
               Which universities are you interested in?
             </label>
-            <input
-              type="text"
-              value={universitySearch}
-              onChange={(e) => setUniversitySearch(e.target.value)}
-              placeholder="Search universities..."
-              className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
-            />
             
-            {isLoadingUniversities ? (
-              <div className="text-center text-slate-400 py-8">Loading universities...</div>
-            ) : (
-              <div className="max-h-80 overflow-y-auto space-y-2">
-                {filteredUniversities.slice(0, 50).map((university, index) => (
-                  <button
-                    key={index}
-                    onClick={() => toggleArrayItem(
-                      formData.targetUniversities, 
-                      university.institution, 
-                      (items) => setFormData({ ...formData, targetUniversities: items })
-                    )}
-                    className={`w-full p-3 rounded-lg border text-left transition-all ${
-                      formData.targetUniversities.includes(university.institution)
-                        ? 'bg-indigo-600 border-indigo-500 text-white'
-                        : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
-                    }`}
-                  >
-                    <div className="font-medium">{university.institution}</div>
-                    {university.state && (
-                      <div className="text-sm opacity-75">{university.state}</div>
-                    )}
-                  </button>
-                ))}
+            <button
+              onClick={() => {
+                setLoadUniversities(true);
+                fetchUniversities();
+              }}
+              className={`w-full p-3 rounded-lg border transition-all mb-4 ${
+                loadUniversities 
+                  ? 'bg-indigo-600 border-indigo-500 text-white' 
+                  : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+              }`}
+              disabled={isLoadingUniversities}
+            >
+              {isLoadingUniversities ? 'Loading university database...' : 
+               loadUniversities ? `${universities.length} universities loaded` : 
+               'Load US Universities Database'}
+            </button>
+            
+            {loadUniversities && (
+              <div>
+                <input
+                  type="text"
+                  value={universitySearch}
+                  onChange={(e) => setUniversitySearch(e.target.value)}
+                  placeholder="Search universities..."
+                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                />
+                
+                {isLoadingUniversities ? (
+                  <div className="text-center text-slate-400 py-8">Loading universities...</div>
+                ) : (
+                  <div className="max-h-80 overflow-y-auto space-y-2">
+                    {filteredUniversities.slice(0, 50).map((university, index) => (
+                      <button
+                        key={index}
+                        onClick={() => toggleArrayItem(
+                          formData.targetUniversities, 
+                          university.name, 
+                          (items) => setFormData({ ...formData, targetUniversities: items })
+                        )}
+                        className={`w-full p-3 rounded-lg border text-left transition-all ${
+                          formData.targetUniversities.includes(university.name)
+                            ? 'bg-indigo-600 border-indigo-500 text-white'
+                            : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                        }`}
+                      >
+                        <div className="font-medium">{university.name}</div>
+                        <div className="text-sm opacity-75">
+                          {university['state-province'] || university.country}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
