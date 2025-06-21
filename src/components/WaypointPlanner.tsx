@@ -1,16 +1,21 @@
 
 import React, { useState } from 'react';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { User, RotateCcw } from 'lucide-react';
 import PlanningGrid from './PlanningGrid';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
 import GoalCard from './GoalCard';
 import { useGoalStore } from '../store/goalStore';
+import { useOnboarding } from '../hooks/useOnboarding';
+import { getUserData } from '../utils/cookieUtils';
 import { Goal } from '../types/Goal';
 
 const WaypointPlanner = () => {
   const [activeGoal, setActiveGoal] = useState<Goal | null>(null);
   const { moveGoal } = useGoalStore();
+  const { resetOnboarding } = useOnboarding();
+  const userData = getUserData();
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -38,13 +43,38 @@ const WaypointPlanner = () => {
         {/* Main Planning Grid */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700 p-4">
-            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center">
-                🗺️
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center">
+                  🗺️
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">Waypoint</h1>
+                  <span className="text-sm text-slate-400">Visual Future Planner</span>
+                </div>
               </div>
-              Waypoint
-              <span className="text-sm font-normal text-slate-400 ml-2">Visual Future Planner</span>
-            </h1>
+              
+              {userData && (
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <User size={18} />
+                    <div className="text-right">
+                      <div className="text-sm font-medium">{userData.name}</div>
+                      <div className="text-xs text-slate-400">{userData.grade}</div>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={resetOnboarding}
+                    className="flex items-center gap-2 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-sm transition-colors"
+                    title="Reset onboarding"
+                  >
+                    <RotateCcw size={16} />
+                    Reset
+                  </button>
+                </div>
+              )}
+            </div>
           </header>
           
           <div className="flex-1 overflow-hidden">

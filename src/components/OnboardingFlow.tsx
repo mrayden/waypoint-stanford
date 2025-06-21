@@ -7,13 +7,24 @@ interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
+interface University {
+  name: string;
+  country: string;
+  'state-province': string;
+  web_pages: string[];
+}
+
 const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [loadingUniversities, setLoadingUniversities] = useState(false);
   const [userProfile, setUserProfile] = useState({
     name: '',
+    email: '',
     grade: '',
     interests: [] as string[],
-    goals: [] as string[]
+    goals: [] as string[],
+    targetUniversities: [] as string[]
   });
   
   const { addGoal } = useGoalStore();
@@ -26,16 +37,22 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       content: 'WelcomeStep'
     },
     {
-      id: 'concept',
-      title: 'How Waypoint Works',
-      subtitle: 'Plan Your Journey Visually',
-      content: 'ConceptStep'
+      id: 'account',
+      title: 'Create Your Account',
+      subtitle: 'Let\'s get you set up',
+      content: 'AccountStep'
     },
     {
       id: 'profile',
       title: 'Tell Us About Yourself',
       subtitle: 'Help us personalize your experience',
       content: 'ProfileStep'
+    },
+    {
+      id: 'universities',
+      title: 'Target Universities',
+      subtitle: 'Which schools interest you?',
+      content: 'UniversitiesStep'
     },
     {
       id: 'interests',
@@ -57,10 +74,45 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
   ];
 
+  const searchUniversities = async (query: string) => {
+    if (query.length < 2) {
+      setUniversities([]);
+      return;
+    }
+    
+    setLoadingUniversities(true);
+    try {
+      const response = await fetch(`https://universities.hipolabs.com/search?country=United+States&name=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      setUniversities(data.slice(0, 10)); // Limit to 10 results
+    } catch (error) {
+      console.error('Error fetching universities:', error);
+      setUniversities([]);
+    } finally {
+      setLoadingUniversities(false);
+    }
+  };
+
+  const saveUserData = () => {
+    const userData = {
+      ...userProfile,
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString()
+    };
+    
+    // Save to cookies (expires in 1 year)
+    const expires = new Date();
+    expires.setFullYear(expires.getFullYear() + 1);
+    document.cookie = `waypoint_user=${encodeURIComponent(JSON.stringify(userData))}; expires=${expires.toUTCString()}; path=/`;
+    
+    console.log('User data saved:', userData);
+  };
+
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
+      saveUserData();
       onComplete();
     }
   };
@@ -77,6 +129,15 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       interests: prev.interests.includes(interest) 
         ? prev.interests.filter(i => i !== interest)
         : [...prev.interests, interest]
+    }));
+  };
+
+  const addUniversity = (university: string) => {
+    setUserProfile(prev => ({
+      ...prev,
+      targetUniversities: prev.targetUniversities.includes(university)
+        ? prev.targetUniversities.filter(u => u !== university)
+        : [...prev.targetUniversities, university]
     }));
   };
 
@@ -118,61 +179,34 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           </div>
         );
 
-      case 'ConceptStep':
-        return (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Calendar className="text-indigo-400" size={24} />
-                  <h3 className="text-white font-semibold">Timeline View</h3>
-                </div>
-                <p className="text-slate-300 text-sm">
-                  See your goals arranged by semester and category. Drag and drop to reorganize as your plans evolve.
-                </p>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Target className="text-purple-400" size={24} />
-                  <h3 className="text-white font-semibold">Goal Cards</h3>
-                </div>
-                <p className="text-slate-300 text-sm">
-                  Each goal is a card you can move around. Track courses, summer programs, sports, and career milestones.
-                </p>
-              </div>
-            </div>
-            
-            <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
-              <h4 className="text-white font-medium mb-2">Example Categories:</h4>
-              <div className="flex flex-wrap gap-2">
-                {['📚 Academics', '☀️ Summer Programs', '🎯 Extracurriculars', '💼 Career', '⚽ Sports'].map(category => (
-                  <span key={category} className="px-3 py-1 bg-slate-600 rounded-full text-sm text-slate-200">
-                    {category}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'ProfileStep':
+      case 'AccountStep':
         return (
           <div className="space-y-6">
             <div className="space-y-4">
               <div>
-                <label className="block text-slate-300 font-medium mb-2">What's your name?</label>
+                <label className="block text-slate-300 font-medium mb-2">Full Name *</label>
                 <input
                   type="text"
                   value={userProfile.name}
                   onChange={(e) => setUserProfile(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Enter your first name"
+                  placeholder="Enter your full name"
                   className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
               
               <div>
-                <label className="block text-slate-300 font-medium mb-2">What grade are you in?</label>
+                <label className="block text-slate-300 font-medium mb-2">Email Address *</label>
+                <input
+                  type="email"
+                  value={userProfile.email}
+                  onChange={(e) => setUserProfile(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="your.email@example.com"
+                  className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-slate-300 font-medium mb-2">What grade are you in? *</label>
                 <select
                   value={userProfile.grade}
                   onChange={(e) => setUserProfile(prev => ({ ...prev, grade: e.target.value }))}
@@ -189,6 +223,85 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                 </select>
               </div>
             </div>
+          </div>
+        );
+
+      case 'ProfileStep':
+        return (
+          <div className="space-y-6">
+            <p className="text-slate-300">
+              Great! Now let's learn a bit more about your academic interests.
+            </p>
+            <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
+              <h4 className="text-white font-medium mb-2">Your Profile:</h4>
+              <div className="space-y-1 text-sm text-slate-300">
+                <div>Name: {userProfile.name}</div>
+                <div>Grade: {userProfile.grade}</div>
+                <div>Email: {userProfile.email}</div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'UniversitiesStep':
+        return (
+          <div className="space-y-6">
+            <p className="text-slate-300">
+              Search for universities you're interested in. This helps us suggest relevant courses and programs.
+            </p>
+            
+            <div>
+              <label className="block text-slate-300 font-medium mb-2">Search Universities</label>
+              <input
+                type="text"
+                onChange={(e) => searchUniversities(e.target.value)}
+                placeholder="Type university name (e.g., Stanford, Harvard, MIT)"
+                className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            {loadingUniversities && (
+              <div className="text-center text-slate-400">Searching universities...</div>
+            )}
+
+            {universities.length > 0 && (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                <h4 className="text-white font-medium">Search Results:</h4>
+                {universities.map((uni, index) => (
+                  <button
+                    key={index}
+                    onClick={() => addUniversity(uni.name)}
+                    className={`w-full p-3 rounded-lg border text-left transition-all ${
+                      userProfile.targetUniversities.includes(uni.name)
+                        ? 'bg-indigo-600 border-indigo-500 text-white'
+                        : 'bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-700/50'
+                    }`}
+                  >
+                    <div className="font-medium">{uni.name}</div>
+                    <div className="text-sm text-slate-400">{uni['state-province']}</div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {userProfile.targetUniversities.length > 0 && (
+              <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
+                <h4 className="text-white font-medium mb-2">Selected Universities:</h4>
+                <div className="space-y-1">
+                  {userProfile.targetUniversities.map(uni => (
+                    <div key={uni} className="text-sm text-slate-300 flex items-center justify-between">
+                      <span>• {uni}</span>
+                      <button
+                        onClick={() => addUniversity(uni)}
+                        className="text-red-400 hover:text-red-300 text-xs"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         );
 
@@ -230,10 +343,10 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
         const suggestedGoals = [
           { title: 'AP Computer Science', type: 'course', category: 'school', icon: '💻' },
           { title: 'Summer Research Program', type: 'summer', category: 'summer', icon: '🔬' },
-          { title: 'Student Government', type: 'extracurricular', category: 'leadership', icon: '🗳️' },
-          { title: 'College Applications', type: 'career', category: 'college', icon: '🎓' },
+          { title: 'Student Government', type: 'extracurricular', category: 'extracurricular', icon: '🗳️' },
+          { title: 'College Applications', type: 'career', category: 'career', icon: '🎓' },
           { title: 'Varsity Soccer', type: 'sports', category: 'sports', icon: '⚽' },
-          { title: 'National Honor Society', type: 'extracurricular', category: 'academic', icon: '🏆' }
+          { title: 'National Honor Society', type: 'extracurricular', category: 'extracurricular', icon: '🏆' }
         ];
         
         return (
@@ -279,22 +392,21 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             </div>
             <div className="space-y-4">
               <p className="text-xl text-slate-300">
-                Great job, {userProfile.name}! You've set up your Waypoint profile.
+                Great job, {userProfile.name}! Your Waypoint account is ready.
               </p>
               <p className="text-slate-400">
                 You can now start planning your journey by dragging goals around the timeline, 
                 adding new ones, and tracking your progress.
               </p>
-              {userProfile.goals.length > 0 && (
-                <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
-                  <h4 className="text-white font-medium mb-2">Your Starting Goals:</h4>
-                  <div className="space-y-1">
-                    {userProfile.goals.map(goal => (
-                      <div key={goal} className="text-sm text-slate-300">• {goal}</div>
-                    ))}
-                  </div>
+              <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600 text-left">
+                <h4 className="text-white font-medium mb-2">Your Profile Summary:</h4>
+                <div className="space-y-1 text-sm text-slate-300">
+                  <div>• Grade: {userProfile.grade}</div>
+                  <div>• Interests: {userProfile.interests.length} selected</div>
+                  <div>• Target Universities: {userProfile.targetUniversities.length} selected</div>
+                  <div>• Starting Goals: {userProfile.goals.length} selected</div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         );
@@ -306,8 +418,8 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
   const canProceed = () => {
     switch (steps[currentStep].content) {
-      case 'ProfileStep':
-        return userProfile.name.trim() && userProfile.grade;
+      case 'AccountStep':
+        return userProfile.name.trim() && userProfile.email.trim() && userProfile.grade;
       case 'InterestsStep':
         return userProfile.interests.length > 0;
       case 'FirstGoalsStep':
@@ -378,7 +490,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
               disabled={!canProceed()}
               className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-500 text-white rounded-lg font-medium transition-all duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:scale-100"
             >
-              {currentStep === steps.length - 1 ? 'Get Started' : 'Next'}
+              {currentStep === steps.length - 1 ? 'Complete Setup' : 'Next'}
               <ArrowRight size={18} />
             </button>
           </div>
