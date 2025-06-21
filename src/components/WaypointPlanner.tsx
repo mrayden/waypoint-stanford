@@ -5,6 +5,7 @@ import { User, RotateCcw, MapPin, Globe, HelpCircle } from 'lucide-react';
 import PlanningGrid from './PlanningGrid';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
+import MarketplaceView from './MarketplaceView';
 import GoalCard from './GoalCard';
 import WelcomeGuide from './WelcomeGuide';
 import { useGoalStore } from '../store/goalStore';
@@ -59,10 +60,10 @@ const WaypointPlanner = () => {
   return (
     <div className="h-screen flex overflow-hidden relative">
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        {/* Left Panel */}
-        <LeftPanel activeTab={activeTab} />
+        {/* Left Panel - only show for local tab */}
+        {activeTab === 'local' && <LeftPanel activeTab={activeTab} />}
         
-        {/* Main Planning Grid */}
+        {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700 p-4">
             <div className="flex items-center justify-between">
@@ -88,7 +89,7 @@ const WaypointPlanner = () => {
                     }`}
                   >
                     <MapPin size={16} />
-                    Local Opportunities
+                    My Plan
                   </button>
                   <button
                     onClick={() => setActiveTab('marketplace')}
@@ -126,50 +127,49 @@ const WaypointPlanner = () => {
               </div>
             </div>
 
-            {/* Tab Description */}
-            <div className="mt-3 p-3 rounded-lg bg-slate-700/30 border border-slate-600/50">
-              {activeTab === 'local' ? (
+            {/* Tab Description - only show for local tab */}
+            {activeTab === 'local' && (
+              <div className="mt-3 p-3 rounded-lg bg-slate-700/30 border border-slate-600/50">
                 <p className="text-slate-300 text-sm">
-                  <span className="text-green-400 font-medium">Local Focus:</span> Find opportunities in your area with less competition. 
-                  Build meaningful connections with local mentors, organizations, and institutions.
+                  <span className="text-green-400 font-medium">My Plan:</span> Organize your academic journey with visual planning. 
+                  Drag and drop goals between semesters and track your progress towards graduation.
                 </p>
-              ) : (
-                <p className="text-slate-300 text-sm">
-                  <span className="text-blue-400 font-medium">Marketplace:</span> Explore competitive national programs, 
-                  online opportunities, and prestigious positions with greater recognition potential.
-                </p>
-              )}
-            </div>
+              </div>
+            )}
           </header>
           
           <div className="flex-1 overflow-hidden">
-            <PlanningGrid />
+            {activeTab === 'local' ? <PlanningGrid /> : <MarketplaceView />}
           </div>
         </div>
         
-        {/* Right Panel */}
-        <RightPanel />
+        {/* Right Panel - only show for local tab */}
+        {activeTab === 'local' && <RightPanel />}
         
-        {/* Reset Button - Bottom Left */}
-        <div className="absolute bottom-6 left-6 z-50">
-          <button
-            onClick={handleResetAccount}
-            className="flex items-center gap-2 px-4 py-3 bg-slate-800/90 hover:bg-slate-700/90 backdrop-blur-sm text-slate-300 hover:text-white rounded-lg text-sm transition-all duration-200 border border-slate-600/50 hover:border-slate-500/50 shadow-lg"
-            title="Reset account and restart onboarding"
-          >
-            <RotateCcw size={16} />
-            Reset Account
-          </button>
-        </div>
+        {/* Reset Button - Bottom Left - only show for local tab */}
+        {activeTab === 'local' && (
+          <div className="absolute bottom-6 left-6 z-50">
+            <button
+              onClick={handleResetAccount}
+              className="flex items-center gap-2 px-4 py-3 bg-slate-800/90 hover:bg-slate-700/90 backdrop-blur-sm text-slate-300 hover:text-white rounded-lg text-sm transition-all duration-200 border border-slate-600/50 hover:border-slate-500/50 shadow-lg"
+              title="Reset account and restart onboarding"
+            >
+              <RotateCcw size={16} />
+              Reset Account
+            </button>
+          </div>
+        )}
         
-        {/* Drag Overlay */}
-        <DragOverlay>
-          {activeGoal && (
-            <div className="transform rotate-3 scale-105">
-              <GoalCard goal={activeGoal} isDragging />
-            </div>
-          )}
-        </DragOverlay>
+        {/* Drag Overlay - only for local tab */}
+        {activeTab === 'local' && (
+          <DragOverlay>
+            {activeGoal && (
+              <div className="transform rotate-3 scale-105">
+                <GoalCard goal={activeGoal} isDragging />
+              </div>
+            )}
+          </DragOverlay>
+        )}
       </DndContext>
 
       {/* Welcome Guide */}
