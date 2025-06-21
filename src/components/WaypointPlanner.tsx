@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { Plus, MapPin, Globe, RotateCcw, Info, Settings, Edit } from 'lucide-react';
+import { ScrollArea } from './ui/scroll-area';
 import PlanningGrid from './PlanningGrid';
 import GoalCard from './GoalCard';
 import AddGoalModal from './AddGoalModal';
@@ -80,126 +81,6 @@ const WaypointPlanner = () => {
             </button>
           </div>
         </div>
-
-        {/* Debug Summary Box - Horizontal at bottom */}
-        <div className="bg-slate-900/80 backdrop-blur-sm border-t border-slate-700/50 p-4 animate-fade-in">
-          <div className="flex items-center gap-2 mb-3">
-            <Info size={14} className="text-slate-400" />
-            <span className="text-slate-300 text-sm font-medium">Debug Info</span>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 text-xs font-mono">
-            {/* User Data Section */}
-            {userData && (
-              <div className="space-y-1 text-slate-400">
-                <div className="text-slate-300 font-semibold mb-2">User Info</div>
-                <div className="flex justify-between">
-                  <span>Name:</span>
-                  <span className="text-slate-200 truncate ml-2 max-w-20">{userData.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Grade:</span>
-                  <span className="text-slate-200">{userData.grade}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>School:</span>
-                  <span className="text-slate-200 truncate ml-2 max-w-20">{userData.currentSchool || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Interests:</span>
-                  <span className="text-slate-200">{userData.interests?.length || 0}</span>
-                </div>
-              </div>
-            )}
-            
-            {/* Goal Statistics Section */}
-            <div className="space-y-1 text-slate-400">
-              <div className="text-slate-300 font-semibold mb-2">Goals</div>
-              <div className="flex justify-between">
-                <span>Total:</span>
-                <span className="text-slate-200">{goals.length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Categories:</span>
-                <span className="text-slate-200">{categories.length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Semesters:</span>
-                <span className="text-slate-200">{semesters.length}</span>
-              </div>
-            </div>
-            
-            {/* Status Breakdown Section */}
-            <div className="space-y-1 text-slate-400">
-              <div className="text-slate-300 font-semibold mb-2">Status</div>
-              <div className="flex justify-between">
-                <span>Completed:</span>
-                <span className="text-green-400">{goals.filter(g => g.status === 'completed').length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>In Progress:</span>
-                <span className="text-yellow-400">{goals.filter(g => g.status === 'in-progress').length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Planned:</span>
-                <span className="text-blue-400">{goals.filter(g => g.status === 'planned').length}</span>
-              </div>
-            </div>
-
-            {/* Additional User Data */}
-            {userData && (
-              <>
-                <div className="space-y-1 text-slate-400">
-                  <div className="text-slate-300 font-semibold mb-2">Academic</div>
-                  <div className="flex justify-between">
-                    <span>GPA:</span>
-                    <span className="text-slate-200">{userData.gpa || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>AP Courses:</span>
-                    <span className="text-slate-200">{userData.apCourses?.length || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Financial:</span>
-                    <span className="text-slate-200 truncate ml-2 max-w-20">{userData.financialSituation || 'N/A'}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-1 text-slate-400">
-                  <div className="text-slate-300 font-semibold mb-2">Future Plans</div>
-                  <div className="flex justify-between">
-                    <span>Universities:</span>
-                    <span className="text-slate-200">{userData.targetUniversities?.length || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Degrees:</span>
-                    <span className="text-slate-200">{userData.targetDegrees?.length || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Extracurriculars:</span>
-                    <span className="text-slate-200">{userData.extracurriculars?.length || 0}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-1 text-slate-400">
-                  <div className="text-slate-300 font-semibold mb-2">Location</div>
-                  <div className="flex justify-between">
-                    <span>State:</span>
-                    <span className="text-slate-200 truncate ml-2 max-w-20">{userData.selectedState || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Location:</span>
-                    <span className="text-slate-200 truncate ml-2 max-w-20">{userData.location || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>School Type:</span>
-                    <span className="text-slate-200 truncate ml-2 max-w-20">{userData.schoolType || 'N/A'}</span>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
       </div>
     );
   };
@@ -249,7 +130,131 @@ const WaypointPlanner = () => {
         </header>
 
         {/* Main Content */}
-        {renderContent()}
+        <div className="flex-1 flex flex-col min-h-0">
+          {renderContent()}
+          
+          {/* Fixed Debug Summary Box - Scrollable at bottom */}
+          <div className="bg-slate-900/80 backdrop-blur-sm border-t border-slate-700/50 animate-fade-in">
+            <div className="flex items-center gap-2 px-4 pt-3 pb-2">
+              <Info size={14} className="text-slate-400" />
+              <span className="text-slate-300 text-sm font-medium">Debug Info</span>
+            </div>
+            
+            <ScrollArea className="h-24 px-4 pb-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 text-xs font-mono">
+                {/* User Data Section */}
+                {userData && (
+                  <div className="space-y-1 text-slate-400">
+                    <div className="text-slate-300 font-semibold mb-2">User Info</div>
+                    <div className="flex justify-between">
+                      <span>Name:</span>
+                      <span className="text-slate-200 truncate ml-2 max-w-20">{userData.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Grade:</span>
+                      <span className="text-slate-200">{userData.grade}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>School:</span>
+                      <span className="text-slate-200 truncate ml-2 max-w-20">{userData.currentSchool || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Interests:</span>
+                      <span className="text-slate-200">{userData.interests?.length || 0}</span>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Goal Statistics Section */}
+                <div className="space-y-1 text-slate-400">
+                  <div className="text-slate-300 font-semibold mb-2">Goals</div>
+                  <div className="flex justify-between">
+                    <span>Total:</span>
+                    <span className="text-slate-200">{goals.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Categories:</span>
+                    <span className="text-slate-200">{categories.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Semesters:</span>
+                    <span className="text-slate-200">{semesters.length}</span>
+                  </div>
+                </div>
+                
+                {/* Status Breakdown Section */}
+                <div className="space-y-1 text-slate-400">
+                  <div className="text-slate-300 font-semibold mb-2">Status</div>
+                  <div className="flex justify-between">
+                    <span>Completed:</span>
+                    <span className="text-green-400">{goals.filter(g => g.status === 'completed').length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>In Progress:</span>
+                    <span className="text-yellow-400">{goals.filter(g => g.status === 'in-progress').length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Planned:</span>
+                    <span className="text-blue-400">{goals.filter(g => g.status === 'planned').length}</span>
+                  </div>
+                </div>
+
+                {/* Additional User Data */}
+                {userData && (
+                  <>
+                    <div className="space-y-1 text-slate-400">
+                      <div className="text-slate-300 font-semibold mb-2">Academic</div>
+                      <div className="flex justify-between">
+                        <span>GPA:</span>
+                        <span className="text-slate-200">{userData.gpa || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>AP Courses:</span>
+                        <span className="text-slate-200">{userData.apCourses?.length || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Financial:</span>
+                        <span className="text-slate-200 truncate ml-2 max-w-20">{userData.financialSituation || 'N/A'}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1 text-slate-400">
+                      <div className="text-slate-300 font-semibold mb-2">Future Plans</div>
+                      <div className="flex justify-between">
+                        <span>Universities:</span>
+                        <span className="text-slate-200">{userData.targetUniversities?.length || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Degrees:</span>
+                        <span className="text-slate-200">{userData.targetDegrees?.length || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Extracurriculars:</span>
+                        <span className="text-slate-200">{userData.extracurriculars?.length || 0}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1 text-slate-400">
+                      <div className="text-slate-300 font-semibold mb-2">Location</div>
+                      <div className="flex justify-between">
+                        <span>State:</span>
+                        <span className="text-slate-200 truncate ml-2 max-w-20">{userData.selectedState || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Location:</span>
+                        <span className="text-slate-200 truncate ml-2 max-w-20">{userData.location || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>School Type:</span>
+                        <span className="text-slate-200 truncate ml-2 max-w-20">{userData.schoolType || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
         
         {/* Drag Overlay */}
         <DragOverlay>
