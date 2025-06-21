@@ -8,6 +8,7 @@ import AddGoalModal from './AddGoalModal';
 import MarketplaceView from './MarketplaceView';
 import { useGoalStore } from '../store/goalStore';
 import { useOnboarding } from '../hooks/useOnboarding';
+import { clearUserData } from '../utils/cookieUtils';
 import { Goal } from '../types/Goal';
 
 const WaypointPlanner = () => {
@@ -26,6 +27,7 @@ const WaypointPlanner = () => {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
+    // Only move if dropped over a valid drop zone
     if (over && active.id !== over.id) {
       const dropZoneId = over.id as string;
       const [category, semester] = dropZoneId.split('-').slice(0, 2);
@@ -35,11 +37,18 @@ const WaypointPlanner = () => {
       }
     }
     
+    // Always clear the active goal when drag ends
+    setActiveGoal(null);
+  };
+
+  const handleDragCancel = () => {
+    // Clear active goal when drag is cancelled
     setActiveGoal(null);
   };
 
   const handleReset = () => {
     resetGoals();
+    clearUserData();
     resetOnboarding();
   };
 
@@ -84,7 +93,11 @@ const WaypointPlanner = () => {
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <DndContext 
+        onDragStart={handleDragStart} 
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
         {/* Enhanced Header */}
         <header className="bg-slate-800/60 backdrop-blur-lg border-b border-slate-700/50 p-6 animate-fade-in shadow-xl">
           <div className="flex items-center justify-between">
@@ -146,6 +159,45 @@ const WaypointPlanner = () => {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
       />
+    </div>
+  );
+};
+
+const renderContent = () => {
+  if (activeTab === 'marketplace') {
+    return <MarketplaceView onBackToLocal={() => setActiveTab('local')} />;
+  }
+  
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 relative overflow-hidden bg-gradient-to-br from-slate-950/50 via-slate-900/50 to-slate-950/50">
+        <PlanningGrid />
+        
+        {/* Floating Action Buttons */}
+        <div className="absolute bottom-8 right-8 flex flex-col gap-4">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-lg animate-fade-in group"
+          >
+            <Plus size={22} className="group-hover:rotate-90 transition-transform duration-300" />
+            Add Goal
+          </button>
+          <button
+            onClick={() => resetOnboarding()}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600/90 hover:bg-blue-500 backdrop-blur-sm text-white rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-lg animate-fade-in"
+          >
+            <Edit size={18} />
+            Modify Path
+          </button>
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-2 px-6 py-3 bg-red-600/90 hover:bg-red-500 backdrop-blur-sm text-white rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-lg animate-fade-in"
+          >
+            <RotateCcw size={18} />
+            Reset All
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

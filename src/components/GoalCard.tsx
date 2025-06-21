@@ -39,16 +39,30 @@ const GoalCard = ({ goal, isDragging = false }: GoalCardProps) => {
     }
   };
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    // TODO: Implement edit functionality
+    console.log('Edit goal:', goal.id);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    // TODO: Implement delete functionality
+    console.log('Delete goal:', goal.id);
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      {...listeners}
-      {...attributes}
       className={`
         relative group cursor-grab active:cursor-grabbing
         ${isDragging ? 'opacity-50' : ''}
       `}
+      {...listeners}
+      {...attributes}
     >
       <div className={`
         p-3 rounded-lg shadow-lg border border-slate-600 transition-all duration-200
@@ -83,13 +97,23 @@ const GoalCard = ({ goal, isDragging = false }: GoalCardProps) => {
           </p>
         )}
 
-        {/* Actions (appear on hover) */}
+        {/* Actions (appear on hover) - prevent dragging when clicked */}
         <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="flex gap-1">
-            <button className="p-1 bg-slate-800/80 rounded text-slate-300 hover:text-white text-xs">
+            <button 
+              onClick={handleEdit}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              className="p-1 bg-slate-800/80 rounded text-slate-300 hover:text-white text-xs"
+            >
               <Edit size={10} />
             </button>
-            <button className="p-1 bg-red-600/80 rounded text-white hover:bg-red-600 text-xs">
+            <button 
+              onClick={handleDelete}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              className="p-1 bg-red-600/80 rounded text-white hover:bg-red-600 text-xs"
+            >
               <Trash2 size={10} />
             </button>
           </div>
