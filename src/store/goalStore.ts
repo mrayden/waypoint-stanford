@@ -94,11 +94,14 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
       goal.id === id ? { ...goal, ...updates } : goal
     )
   })),
-  moveGoal: (id, category, semester) => set((state) => ({
-    goals: state.goals.map(goal =>
-      goal.id === id ? { ...goal, category, semester } : goal
-    )
-  })),
+  moveGoal: (id, category, semester) => {
+    console.log(`Moving goal ${id} to category: ${category}, semester: ${semester}`);
+    set((state) => ({
+      goals: state.goals.map(goal =>
+        goal.id === id ? { ...goal, category, semester } : goal
+      )
+    }));
+  },
   setFilter: (key, value) => set((state) => ({
     filters: { ...state.filters, [key]: value }
   })),

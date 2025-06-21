@@ -27,14 +27,24 @@ const WaypointPlanner = () => {
     const { active } = event;
     const goal = useGoalStore.getState().goals.find(g => g.id === active.id);
     setActiveGoal(goal || null);
+    console.log('Drag started for goal:', goal);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
+    console.log('Drag ended:', { activeId: active.id, overId: over?.id });
+    
     if (over && active.id !== over.id) {
-      const [category, semester] = (over.id as string).split('-');
-      moveGoal(active.id as string, category, semester);
+      // Parse the drop zone ID to extract category and semester
+      const dropZoneId = over.id as string;
+      const [category, semester] = dropZoneId.split('-').slice(0, 2);
+      
+      console.log('Parsed drop zone:', { category, semester, fullId: dropZoneId });
+      
+      if (category && semester) {
+        moveGoal(active.id as string, category, semester);
+      }
     }
     
     setActiveGoal(null);
