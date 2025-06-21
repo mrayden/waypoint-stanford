@@ -15,8 +15,26 @@ const RightPanel = () => {
 
   const categoryStats = categories.map(cat => ({
     ...cat,
-    count: goals.filter(g => g.category === cat.id).length
+    count: goals.filter(g => g.category === cat.id).length,
+    requirements: getCategoryRequirements(cat.id)
   }));
+
+  function getCategoryRequirements(categoryId: string) {
+    switch (categoryId) {
+      case 'school':
+        return 'Maintain GPA 3.5+';
+      case 'summer':
+        return 'Complete application by March';
+      case 'extracurricular':
+        return 'Show leadership skills';
+      case 'career':
+        return 'Build relevant portfolio';
+      case 'sports':
+        return 'Pass physical fitness test';
+      default:
+        return 'Meet basic requirements';
+    }
+  }
 
   return (
     <div className="w-80 bg-slate-800/50 backdrop-blur-sm border-l border-slate-700 p-6 overflow-y-auto">
@@ -104,7 +122,7 @@ const RightPanel = () => {
             <option value="all">All Categories</option>
             {categories.map(category => (
               <option key={category.id} value={category.id}>
-                {category.icon} {category.name}
+                {category.name}
               </option>
             ))}
           </select>
@@ -134,12 +152,16 @@ const RightPanel = () => {
         <h3 className="text-white font-semibold text-lg mb-4">By Category</h3>
         <div className="space-y-3">
           {categoryStats.map(category => (
-            <div key={category.id} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
-              <div className="flex items-center gap-3">
-                <span className="text-lg">{category.icon}</span>
-                <span className="text-slate-200 text-sm">{category.name}</span>
+            <div key={category.id} className="p-3 bg-slate-700/30 rounded-lg border border-slate-600/50">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3">
+                  <span className="text-slate-200 text-sm font-medium">{category.name}</span>
+                </div>
+                <span className="text-white font-medium">{category.count}</span>
               </div>
-              <span className="text-white font-medium">{category.count}</span>
+              <div className="text-xs text-slate-400">
+                {category.requirements}
+              </div>
             </div>
           ))}
         </div>
