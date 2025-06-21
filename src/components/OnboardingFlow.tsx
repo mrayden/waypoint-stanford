@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, GraduationCap, User, MapPin, Heart, Target, Building, DollarSign, TrendingUp, School } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GraduationCap, User, MapPin, Heart, Target, Building, DollarSign, TrendingUp, School, BookOpen, Calendar } from 'lucide-react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { saveUserData } from '../utils/cookieUtils';
@@ -32,11 +32,17 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     currentSchool: '',
     schoolType: '', // public, private, or custom
     gpa: '',
+    weightedGpa: '',
+    apCourses: [] as string[],
+    ibCourses: [] as string[],
+    plannedCourses: [] as string[],
     financialSituation: '',
     interests: [] as string[],
     goals: [] as string[],
     targetUniversities: [] as string[],
     targetDegrees: [] as string[],
+    extracurriculars: [] as string[],
+    summerPlans: [] as string[],
   });
 
   const [universities, setUniversities] = useState<University[]>([]);
@@ -134,6 +140,45 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     school['School Name'].toLowerCase().includes(schoolSearch.toLowerCase())
   );
 
+  const apCourses = [
+    'AP Biology', 'AP Chemistry', 'AP Physics 1', 'AP Physics 2', 'AP Physics C',
+    'AP Calculus AB', 'AP Calculus BC', 'AP Statistics', 'AP Computer Science A',
+    'AP Computer Science Principles', 'AP English Language', 'AP English Literature',
+    'AP World History', 'AP US History', 'AP European History', 'AP Government',
+    'AP Economics (Macro)', 'AP Economics (Micro)', 'AP Psychology', 'AP Art History',
+    'AP Studio Art', 'AP Music Theory', 'AP Spanish', 'AP French', 'AP German',
+    'AP Chinese', 'AP Latin', 'AP Environmental Science', 'AP Human Geography'
+  ];
+
+  const ibCourses = [
+    'IB Mathematics HL', 'IB Mathematics SL', 'IB Physics HL', 'IB Physics SL',
+    'IB Chemistry HL', 'IB Chemistry SL', 'IB Biology HL', 'IB Biology SL',
+    'IB English A HL', 'IB English A SL', 'IB History HL', 'IB History SL',
+    'IB Economics HL', 'IB Economics SL', 'IB Psychology HL', 'IB Psychology SL',
+    'IB Computer Science HL', 'IB Computer Science SL', 'IB Visual Arts HL',
+    'IB Visual Arts SL', 'IB Music HL', 'IB Music SL', 'IB Spanish HL',
+    'IB Spanish SL', 'IB French HL', 'IB French SL', 'IB Geography HL',
+    'IB Geography SL', 'IB Business Management HL', 'IB Business Management SL'
+  ];
+
+  const extracurricularOptions = [
+    'Student Government', 'Debate Team', 'Model UN', 'National Honor Society',
+    'Key Club', 'Drama/Theater', 'Band/Orchestra', 'Choir', 'Art Club',
+    'Science Olympiad', 'Math Team', 'Robotics Club', 'Computer Science Club',
+    'Environmental Club', 'Volunteer Work', 'Community Service', 'Sports Teams',
+    'Academic Decathlon', 'Mock Trial', 'Yearbook/Newspaper', 'Language Clubs',
+    'Cultural Clubs', 'Religious Organizations', 'Part-time Job', 'Internships'
+  ];
+
+  const summerOpportunities = [
+    'Research Internships', 'Hospital Volunteering', 'Summer Job', 'Academic Camps',
+    'Leadership Programs', 'Community College Courses', 'Online Courses (Coursera, etc)',
+    'Coding Bootcamps', 'Art/Music Workshops', 'Sports Camps', 'Language Immersion',
+    'Mission Trips/Service Learning', 'Starting a Business', 'Creating Content/Blog',
+    'Teaching/Tutoring Others', 'Environmental Conservation', 'Political Campaigns',
+    'Local Government Internships', 'Museum/Library Work', 'Tech Company Programs'
+  ];
+
   const interests = [
     'Computer Science', 'Engineering', 'Medicine', 'Business', 'Arts & Design',
     'Mathematics', 'Sciences', 'Literature', 'History', 'Psychology',
@@ -183,6 +228,10 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       interests: formData.interests,
       goals: formData.goals,
       targetUniversities: formData.targetUniversities,
+      apCourses: formData.apCourses,
+      ibCourses: formData.ibCourses,
+      extracurriculars: formData.extracurriculars,
+      summerPlans: formData.summerPlans,
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
     });
@@ -433,15 +482,15 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       )
     },
     {
-      title: 'Academic Performance',
+      title: 'Academic Performance & Courses',
       icon: TrendingUp,
       content: (
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-4">
-              What is your current GPA range?
+              What is your current unweighted GPA range?
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 mb-6">
               {gpaRanges.map(gpa => (
                 <button
                   key={gpa}
@@ -456,6 +505,69 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              AP Courses (Current & Planned)
+            </label>
+            <p className="text-sm text-slate-400 mb-4">
+              Select AP courses you're taking or planning to take. These can significantly boost your weighted GPA.
+            </p>
+            <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto">
+              {apCourses.map(course => (
+                <button
+                  key={course}
+                  onClick={() => toggleArrayItem(
+                    formData.apCourses, 
+                    course, 
+                    (items) => setFormData({ ...formData, apCourses: items })
+                  )}
+                  className={`p-2 rounded-lg border text-left transition-all text-sm ${
+                    formData.apCourses.includes(course)
+                      ? 'bg-green-600 border-green-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  {course}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              IB Courses (if applicable)
+            </label>
+            <p className="text-sm text-slate-400 mb-4">
+              Select IB courses if you're in an International Baccalaureate program.
+            </p>
+            <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto">
+              {ibCourses.map(course => (
+                <button
+                  key={course}
+                  onClick={() => toggleArrayItem(
+                    formData.ibCourses, 
+                    course, 
+                    (items) => setFormData({ ...formData, ibCourses: items })
+                  )}
+                  className={`p-2 rounded-lg border text-left transition-all text-sm ${
+                    formData.ibCourses.includes(course)
+                      ? 'bg-blue-600 border-blue-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  {course}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-4 bg-amber-900/20 border border-amber-600/30 rounded-lg">
+            <p className="text-amber-200 text-sm">
+              💡 Tip: AP and IB courses typically add 1.0 point to your GPA (A = 5.0 instead of 4.0). 
+              Taking challenging courses shows colleges you're ready for rigorous academics!
+            </p>
           </div>
         </div>
       )
@@ -553,6 +665,88 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Extracurricular Activities',
+      icon: Calendar,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              Current Extracurricular Activities
+            </label>
+            <p className="text-sm text-slate-400 mb-4">
+              Select activities you're currently involved in or planning to join. These help you stand out!
+            </p>
+            <div className="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto">
+              {extracurricularOptions.map(activity => (
+                <button
+                  key={activity}
+                  onClick={() => toggleArrayItem(
+                    formData.extracurriculars, 
+                    activity, 
+                    (items) => setFormData({ ...formData, extracurriculars: items })
+                  )}
+                  className={`p-3 rounded-lg border text-left transition-all text-sm ${
+                    formData.extracurriculars.includes(activity)
+                      ? 'bg-indigo-600 border-indigo-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  {activity}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Summer & Local Opportunities',
+      icon: BookOpen,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              Summer Plans & Opportunities
+            </label>
+            <p className="text-sm text-slate-400 mb-4">
+              Summer activities and local opportunities are crucial for standing out in college applications. 
+              Select what you're interested in or already planning.
+            </p>
+            <div className="grid grid-cols-1 gap-3 max-h-80 overflow-y-auto">
+              {summerOpportunities.map(opportunity => (
+                <button
+                  key={opportunity}
+                  onClick={() => toggleArrayItem(
+                    formData.summerPlans, 
+                    opportunity, 
+                    (items) => setFormData({ ...formData, summerPlans: items })
+                  )}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    formData.summerPlans.includes(opportunity)
+                      ? 'bg-purple-600 border-purple-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  {opportunity}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-4 bg-purple-900/20 border border-purple-600/30 rounded-lg">
+            <h4 className="text-purple-200 font-medium mb-2">🚀 Pro Tips for Standing Out:</h4>
+            <ul className="text-purple-200 text-sm space-y-1">
+              <li>• Research internships show intellectual curiosity</li>
+              <li>• Starting something new demonstrates leadership</li>
+              <li>• Community service shows commitment to others</li>
+              <li>• Building skills (coding, languages) shows initiative</li>
+              <li>• Local connections can lead to recommendation letters</li>
+            </ul>
           </div>
         </div>
       )
@@ -665,8 +859,10 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       case 5: return formData.financialSituation;
       case 6: return formData.interests.length > 0;
       case 7: return formData.goals.length > 0;
-      case 8: return formData.targetUniversities.length > 0;
-      case 9: return true; // Degrees are optional
+      case 8: return formData.extracurriculars.length > 0;
+      case 9: return formData.summerPlans.length > 0;
+      case 10: return formData.targetUniversities.length > 0;
+      case 11: return true; // Degrees are optional
       default: return false;
     }
   };
