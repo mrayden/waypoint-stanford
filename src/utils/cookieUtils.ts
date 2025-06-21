@@ -3,9 +3,21 @@ export interface UserData {
   name: string;
   email: string;
   grade: string;
+  location?: string;
+  currentSchool?: string;
+  schoolType?: string;
+  gpa?: string;
+  weightedGpa?: string;
+  apCourses?: string[];
+  ibCourses?: string[];
+  plannedCourses?: string[];
+  financialSituation?: string;
   interests: string[];
   goals: string[];
   targetUniversities: string[];
+  targetDegrees?: string[];
+  extracurriculars?: string[];
+  summerPlans?: string[];
   createdAt: string;
   lastUpdated: string;
 }
