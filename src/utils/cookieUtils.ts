@@ -4,6 +4,7 @@ export interface UserData {
   email: string;
   grade: string;
   location?: string;
+  selectedState?: string;
   currentSchool?: string;
   schoolType?: string;
   gpa?: string;
