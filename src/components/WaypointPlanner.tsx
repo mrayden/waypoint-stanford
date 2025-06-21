@@ -163,43 +163,4 @@ const WaypointPlanner = () => {
   );
 };
 
-const renderContent = () => {
-  if (activeTab === 'marketplace') {
-    return <MarketplaceView onBackToLocal={() => setActiveTab('local')} />;
-  }
-  
-  return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="flex-1 relative overflow-hidden bg-gradient-to-br from-slate-950/50 via-slate-900/50 to-slate-950/50">
-        <PlanningGrid />
-        
-        {/* Floating Action Buttons */}
-        <div className="absolute bottom-8 right-8 flex flex-col gap-4">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-full font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-lg animate-fade-in group"
-          >
-            <Plus size={22} className="group-hover:rotate-90 transition-transform duration-300" />
-            Add Goal
-          </button>
-          <button
-            onClick={() => resetOnboarding()}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600/90 hover:bg-blue-500 backdrop-blur-sm text-white rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-lg animate-fade-in"
-          >
-            <Edit size={18} />
-            Modify Path
-          </button>
-          <button
-            onClick={handleReset}
-            className="flex items-center gap-2 px-6 py-3 bg-red-600/90 hover:bg-red-500 backdrop-blur-sm text-white rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-lg animate-fade-in"
-          >
-            <RotateCcw size={18} />
-            Reset All
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default WaypointPlanner;
