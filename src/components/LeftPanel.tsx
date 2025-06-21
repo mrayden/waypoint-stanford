@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, Search, BookOpen, Target, Briefcase, Trophy, MapPin, X, Clock, Users, ExternalLink } from 'lucide-react';
 import { useGoalStore } from '../store/goalStore';
