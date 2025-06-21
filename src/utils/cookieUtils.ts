@@ -25,6 +25,12 @@ export const getUserData = (): UserData | null => {
   }
 };
 
+export const saveUserData = (userData: UserData): void => {
+  const expires = new Date();
+  expires.setFullYear(expires.getFullYear() + 1);
+  document.cookie = `waypoint_user=${encodeURIComponent(JSON.stringify(userData))}; expires=${expires.toUTCString()}; path=/`;
+};
+
 export const updateUserData = (updates: Partial<UserData>): void => {
   const currentData = getUserData();
   if (!currentData) return;
