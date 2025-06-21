@@ -1,29 +1,27 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, GraduationCap, User, MapPin, Heart, Target, Building } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GraduationCap, User, MapPin, Heart, Target, Building, DollarSign, TrendingUp, School } from 'lucide-react';
 import { Button } from './ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { saveUserData } from '../utils/cookieUtils';
 
 interface University {
-  name: string;
-  country: string;
-  'state-province'?: string;
-  web_pages?: string[];
+  institution: string;
+  state?: string;
 }
 
-// Fallback university data in case API fails
-const fallbackUniversities = [
-  { name: 'Harvard University', country: 'United States', 'state-province': 'Massachusetts' },
-  { name: 'Stanford University', country: 'United States', 'state-province': 'California' },
-  { name: 'Massachusetts Institute of Technology', country: 'United States', 'state-province': 'Massachusetts' },
-  { name: 'University of California, Berkeley', country: 'United States', 'state-province': 'California' },
-  { name: 'Princeton University', country: 'United States', 'state-province': 'New Jersey' },
-  { name: 'Yale University', country: 'United States', 'state-province': 'Connecticut' },
-  { name: 'Columbia University', country: 'United States', 'state-province': 'New York' },
-  { name: 'University of Chicago', country: 'United States', 'state-province': 'Illinois' },
-  { name: 'University of Pennsylvania', country: 'United States', 'state-province': 'Pennsylvania' },
-  { name: 'Cornell University', country: 'United States', 'state-province': 'New York' },
-];
+interface Degree {
+  degree_title: string;
+  degree_reference: string;
+  degree_level: string;
+}
+
+interface HighSchool {
+  'School Name': string;
+  'State Name [Public School] Latest available year': string;
+  'State Abbr [Public School] Latest available year': string;
+  'School Type [Public School] 2019-20': string;
+}
 
 const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -31,37 +29,109 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     name: '',
     email: '',
     grade: '',
+    location: '',
+    currentSchool: '',
+    gpa: '',
+    financialSituation: '',
     interests: [] as string[],
     goals: [] as string[],
     targetUniversities: [] as string[],
+    targetDegrees: [] as string[],
   });
+
   const [universities, setUniversities] = useState<University[]>([]);
+  const [degrees, setDegrees] = useState<Degree[]>([]);
+  const [highSchools, setHighSchools] = useState<HighSchool[]>([]);
   const [universitySearch, setUniversitySearch] = useState('');
+  const [degreeSearch, setDegreeSearch] = useState('');
+  const [schoolSearch, setSchoolSearch] = useState('');
   const [isLoadingUniversities, setIsLoadingUniversities] = useState(false);
+  const [isLoadingDegrees, setIsLoadingDegrees] = useState(false);
+  const [isLoadingSchools, setIsLoadingSchools] = useState(false);
+  const [loadHighSchools, setLoadHighSchools] = useState(false);
 
   useEffect(() => {
     fetchUniversities();
+    fetchDegrees();
   }, []);
 
   const fetchUniversities = async () => {
     setIsLoadingUniversities(true);
     try {
-      const response = await fetch('https://universities.hipolabs.com/search?country=United+States');
-      if (!response.ok) {
-        throw new Error('API request failed');
-      }
+      const response = await fetch('https://gist.githubusercontent.com/hakimelek/147f364c449104ba66da9a3baca9d0c0/raw/7e914fc578d3176f1f752f571f5b3761ea2b22fa/us_institutions.json');
+      if (!response.ok) throw new Error('Failed to fetch universities');
       const data = await response.json();
-      setUniversities(data.slice(0, 100)); // Limit to first 100 for performance
+      setUniversities(data.slice(0, 200)); // Limit for performance
     } catch (error) {
-      console.log('University API failed, using fallback data:', error);
-      setUniversities(fallbackUniversities);
+      console.log('University API failed:', error);
+      // Fallback data
+      setUniversities([
+        { institution: 'Harvard University' },
+        { institution: 'Stanford University' },
+        { institution: 'Massachusetts Institute of Technology' },
+        { institution: 'University of California, Berkeley' },
+        { institution: 'Princeton University' },
+      ]);
     } finally {
       setIsLoadingUniversities(false);
     }
   };
 
+  const fetchDegrees = async () => {
+    setIsLoadingDegrees(true);
+    try {
+      const response = await fetch('https://gist.githubusercontent.com/cblanquera/21c925d1312e9a4de3c269be134f3a6c/raw/4e227bcf3ac9be3adecf64382edd5f7291ef2065/certs.json');
+      if (!response.ok) throw new Error('Failed to fetch degrees');
+      const data = await response.json();
+      setDegrees(data.slice(0, 100)); // Limit for performance
+    } catch (error) {
+      console.log('Degrees API failed:', error);
+      setDegrees([]);
+    } finally {
+      setIsLoadingDegrees(false);
+    }
+  };
+
+  const fetchHighSchools = async () => {
+    if (isLoadingSchools || highSchools.length > 0) return;
+    
+    setIsLoadingSchools(true);
+    try {
+      const response = await fetch('https://raw.githubusercontent.com/nicelion/schools-and-districts/refs/heads/master/csv/schools.csv');
+      if (!response.ok) throw new Error('Failed to fetch schools');
+      const csvText = await response.text();
+      
+      // Parse CSV
+      const lines = csvText.split('\n');
+      const headers = lines[0].split(',');
+      const schools = lines.slice(1, 1000).map(line => { // Limit to first 1000 for performance
+        const values = line.split(',');
+        const school: any = {};
+        headers.forEach((header, index) => {
+          school[header] = values[index];
+        });
+        return school as HighSchool;
+      }).filter(school => school['School Name']);
+      
+      setHighSchools(schools);
+    } catch (error) {
+      console.log('High schools API failed:', error);
+      setHighSchools([]);
+    } finally {
+      setIsLoadingSchools(false);
+    }
+  };
+
   const filteredUniversities = universities.filter(uni =>
-    uni.name.toLowerCase().includes(universitySearch.toLowerCase())
+    uni.institution.toLowerCase().includes(universitySearch.toLowerCase())
+  );
+
+  const filteredDegrees = degrees.filter(degree =>
+    degree.degree_title.toLowerCase().includes(degreeSearch.toLowerCase())
+  );
+
+  const filteredHighSchools = highSchools.filter(school =>
+    school['School Name'].toLowerCase().includes(schoolSearch.toLowerCase())
   );
 
   const interests = [
@@ -81,6 +151,16 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const gradeOptions = [
     '9th Grade (Freshman)', '10th Grade (Sophomore)', 
     '11th Grade (Junior)', '12th Grade (Senior)'
+  ];
+
+  const gpaRanges = [
+    '4.0+', '3.5-3.9', '3.0-3.4', '2.5-2.9', '2.0-2.4', 'Below 2.0', 'Not sure'
+  ];
+
+  const financialSituations = [
+    'No financial concerns', 'Moderate financial constraints', 
+    'Significant financial constraints', 'Need full financial aid',
+    'International student funding needed', 'Prefer not to say'
   ];
 
   const handleNext = () => {
@@ -169,8 +249,53 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       )
     },
     {
-      title: 'Academic Level',
+      title: 'Location & Eligibility',
       icon: MapPin,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              Are you currently located in the United States?
+            </label>
+            <div className="grid grid-cols-1 gap-3">
+              <button
+                onClick={() => setFormData({ ...formData, location: 'US' })}
+                className={`p-4 rounded-lg border text-left transition-all ${
+                  formData.location === 'US'
+                    ? 'bg-indigo-600 border-indigo-500 text-white'
+                    : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                }`}
+              >
+                <div className="font-medium">Yes, I'm in the United States</div>
+                <div className="text-sm opacity-75">Access to all US universities and programs</div>
+              </button>
+              <button
+                onClick={() => setFormData({ ...formData, location: 'International' })}
+                className={`p-4 rounded-lg border text-left transition-all ${
+                  formData.location === 'International'
+                    ? 'bg-orange-600 border-orange-500 text-white'
+                    : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                }`}
+              >
+                <div className="font-medium">No, I'm located outside the US</div>
+                <div className="text-sm opacity-75">Limited features - US-focused planning only</div>
+              </button>
+            </div>
+            {formData.location === 'International' && (
+              <div className="mt-4 p-4 bg-orange-900/20 border border-orange-600/30 rounded-lg">
+                <p className="text-orange-200 text-sm">
+                  Note: Waypoint is currently optimized for US-based students. While you can still use the platform, 
+                  some features like local high school data and specific financial aid information may not be applicable.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Academic Level',
+      icon: School,
       content: (
         <div className="space-y-6">
           <div>
@@ -191,6 +316,123 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   {grade}
                 </button>
               ))}
+            </div>
+          </div>
+
+          {formData.location === 'US' && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-4">
+                Current High School (Optional)
+              </label>
+              <button
+                onClick={() => {
+                  setLoadHighSchools(true);
+                  fetchHighSchools();
+                }}
+                className={`w-full p-3 rounded-lg border transition-all ${
+                  loadHighSchools 
+                    ? 'bg-indigo-600 border-indigo-500 text-white' 
+                    : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                }`}
+              >
+                {loadHighSchools ? 'Loading school database...' : 'Load US High Schools Database'}
+              </button>
+              
+              {loadHighSchools && (
+                <div className="mt-4">
+                  <input
+                    type="text"
+                    value={schoolSearch}
+                    onChange={(e) => setSchoolSearch(e.target.value)}
+                    placeholder="Search your high school..."
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                  />
+                  
+                  {isLoadingSchools ? (
+                    <div className="text-center text-slate-400 py-4">Loading schools...</div>
+                  ) : (
+                    <div className="max-h-40 overflow-y-auto space-y-2">
+                      {filteredHighSchools.slice(0, 20).map((school, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setFormData({ ...formData, currentSchool: school['School Name'] })}
+                          className={`w-full p-3 rounded-lg border text-left transition-all ${
+                            formData.currentSchool === school['School Name']
+                              ? 'bg-indigo-600 border-indigo-500 text-white'
+                              : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                          }`}
+                        >
+                          <div className="font-medium">{school['School Name']}</div>
+                          <div className="text-sm opacity-75">
+                            {school['State Name [Public School] Latest available year']} • {school['School Type [Public School] 2019-20']}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )
+    },
+    {
+      title: 'Academic Performance',
+      icon: TrendingUp,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              What is your current GPA range?
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {gpaRanges.map(gpa => (
+                <button
+                  key={gpa}
+                  onClick={() => setFormData({ ...formData, gpa })}
+                  className={`p-3 rounded-lg border text-center transition-all ${
+                    formData.gpa === gpa
+                      ? 'bg-indigo-600 border-indigo-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  {gpa}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Financial Situation',
+      icon: DollarSign,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              How would you describe your financial situation for college?
+            </label>
+            <div className="space-y-3">
+              {financialSituations.map(situation => (
+                <button
+                  key={situation}
+                  onClick={() => setFormData({ ...formData, financialSituation: situation })}
+                  className={`w-full p-3 rounded-lg border text-left transition-all ${
+                    formData.financialSituation === situation
+                      ? 'bg-indigo-600 border-indigo-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  {situation}
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 p-4 bg-blue-900/20 border border-blue-600/30 rounded-lg">
+              <p className="text-blue-200 text-sm">
+                This information helps us suggest appropriate universities, scholarships, and financial aid options.
+              </p>
             </div>
           </div>
         </div>
@@ -281,24 +523,71 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               <div className="text-center text-slate-400 py-8">Loading universities...</div>
             ) : (
               <div className="max-h-80 overflow-y-auto space-y-2">
-                {filteredUniversities.slice(0, 50).map(university => (
+                {filteredUniversities.slice(0, 50).map((university, index) => (
                   <button
-                    key={university.name}
+                    key={index}
                     onClick={() => toggleArrayItem(
                       formData.targetUniversities, 
-                      university.name, 
+                      university.institution, 
                       (items) => setFormData({ ...formData, targetUniversities: items })
                     )}
                     className={`w-full p-3 rounded-lg border text-left transition-all ${
-                      formData.targetUniversities.includes(university.name)
+                      formData.targetUniversities.includes(university.institution)
                         ? 'bg-indigo-600 border-indigo-500 text-white'
                         : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
                     }`}
                   >
-                    <div className="font-medium">{university.name}</div>
-                    {university['state-province'] && (
-                      <div className="text-sm opacity-75">{university['state-province']}</div>
+                    <div className="font-medium">{university.institution}</div>
+                    {university.state && (
+                      <div className="text-sm opacity-75">{university.state}</div>
                     )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Degrees & Certifications',
+      icon: GraduationCap,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              Are you interested in any specific degrees or certifications?
+            </label>
+            <input
+              type="text"
+              value={degreeSearch}
+              onChange={(e) => setDegreeSearch(e.target.value)}
+              placeholder="Search degrees and certifications..."
+              className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+            />
+            
+            {isLoadingDegrees ? (
+              <div className="text-center text-slate-400 py-8">Loading degrees...</div>
+            ) : (
+              <div className="max-h-80 overflow-y-auto space-y-2">
+                {filteredDegrees.slice(0, 30).map((degree, index) => (
+                  <button
+                    key={index}
+                    onClick={() => toggleArrayItem(
+                      formData.targetDegrees, 
+                      degree.degree_title, 
+                      (items) => setFormData({ ...formData, targetDegrees: items })
+                    )}
+                    className={`w-full p-3 rounded-lg border text-left transition-all ${
+                      formData.targetDegrees.includes(degree.degree_title)
+                        ? 'bg-indigo-600 border-indigo-500 text-white'
+                        : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                    }`}
+                  >
+                    <div className="font-medium">{degree.degree_title}</div>
+                    <div className="text-sm opacity-75">
+                      {degree.degree_reference} • {degree.degree_level}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -315,10 +604,14 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     switch (currentStep) {
       case 0: return true;
       case 1: return formData.name && formData.email;
-      case 2: return formData.grade;
-      case 3: return formData.interests.length > 0;
-      case 4: return formData.goals.length > 0;
-      case 5: return formData.targetUniversities.length > 0;
+      case 2: return formData.location;
+      case 3: return formData.grade;
+      case 4: return formData.gpa;
+      case 5: return formData.financialSituation;
+      case 6: return formData.interests.length > 0;
+      case 7: return formData.goals.length > 0;
+      case 8: return formData.targetUniversities.length > 0;
+      case 9: return true; // Degrees are optional
       default: return false;
     }
   };
