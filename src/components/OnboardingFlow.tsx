@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, GraduationCap, User, MapPin, Heart, Target, Building, DollarSign, TrendingUp, School } from 'lucide-react';
 import { Button } from './ui/button';
@@ -31,6 +30,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     grade: '',
     location: '',
     currentSchool: '',
+    schoolType: '', // public, private, or custom
     gpa: '',
     financialSituation: '',
     interests: [] as string[],
@@ -322,54 +322,109 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           {formData.location === 'US' && (
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-4">
-                Current High School (Optional)
+                What type of school do you attend?
               </label>
-              <button
-                onClick={() => {
-                  setLoadHighSchools(true);
-                  fetchHighSchools();
-                }}
-                className={`w-full p-3 rounded-lg border transition-all ${
-                  loadHighSchools 
-                    ? 'bg-indigo-600 border-indigo-500 text-white' 
-                    : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
-                }`}
-              >
-                {loadHighSchools ? 'Loading school database...' : 'Load US High Schools Database'}
-              </button>
-              
-              {loadHighSchools && (
-                <div className="mt-4">
-                  <input
-                    type="text"
-                    value={schoolSearch}
-                    onChange={(e) => setSchoolSearch(e.target.value)}
-                    placeholder="Search your high school..."
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
-                  />
+              <div className="grid grid-cols-1 gap-3 mb-4">
+                <button
+                  onClick={() => setFormData({ ...formData, schoolType: 'public', currentSchool: '' })}
+                  className={`p-4 rounded-lg border text-left transition-all ${
+                    formData.schoolType === 'public'
+                      ? 'bg-indigo-600 border-indigo-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  <div className="font-medium">Public School</div>
+                  <div className="text-sm opacity-75">Search from US public schools database</div>
+                </button>
+                <button
+                  onClick={() => setFormData({ ...formData, schoolType: 'private', currentSchool: '' })}
+                  className={`p-4 rounded-lg border text-left transition-all ${
+                    formData.schoolType === 'private'
+                      ? 'bg-orange-600 border-orange-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  <div className="font-medium">Private School</div>
+                  <div className="text-sm opacity-75">Enter your school name manually</div>
+                </button>
+                <button
+                  onClick={() => setFormData({ ...formData, schoolType: 'custom', currentSchool: '' })}
+                  className={`p-4 rounded-lg border text-left transition-all ${
+                    formData.schoolType === 'custom'
+                      ? 'bg-green-600 border-green-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  <div className="font-medium">Can't find my school</div>
+                  <div className="text-sm opacity-75">Enter your school name manually</div>
+                </button>
+              </div>
+
+              {formData.schoolType === 'public' && (
+                <div>
+                  <button
+                    onClick={() => {
+                      setLoadHighSchools(true);
+                      fetchHighSchools();
+                    }}
+                    className={`w-full p-3 rounded-lg border transition-all mb-4 ${
+                      loadHighSchools 
+                        ? 'bg-indigo-600 border-indigo-500 text-white' 
+                        : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                    }`}
+                  >
+                    {loadHighSchools ? 'Loading school database...' : 'Load US Public Schools Database'}
+                  </button>
                   
-                  {isLoadingSchools ? (
-                    <div className="text-center text-slate-400 py-4">Loading schools...</div>
-                  ) : (
-                    <div className="max-h-40 overflow-y-auto space-y-2">
-                      {filteredHighSchools.slice(0, 20).map((school, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setFormData({ ...formData, currentSchool: school['School Name'] })}
-                          className={`w-full p-3 rounded-lg border text-left transition-all ${
-                            formData.currentSchool === school['School Name']
-                              ? 'bg-indigo-600 border-indigo-500 text-white'
-                              : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
-                          }`}
-                        >
-                          <div className="font-medium">{school['School Name']}</div>
-                          <div className="text-sm opacity-75">
-                            {school['State Name [Public School] Latest available year']} • {school['School Type [Public School] 2019-20']}
-                          </div>
-                        </button>
-                      ))}
+                  {loadHighSchools && (
+                    <div>
+                      <input
+                        type="text"
+                        value={schoolSearch}
+                        onChange={(e) => setSchoolSearch(e.target.value)}
+                        placeholder="Search your public high school..."
+                        className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                      />
+                      
+                      {isLoadingSchools ? (
+                        <div className="text-center text-slate-400 py-4">Loading schools...</div>
+                      ) : (
+                        <div className="max-h-40 overflow-y-auto space-y-2">
+                          {filteredHighSchools.slice(0, 20).map((school, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setFormData({ ...formData, currentSchool: school['School Name'] })}
+                              className={`w-full p-3 rounded-lg border text-left transition-all ${
+                                formData.currentSchool === school['School Name']
+                                  ? 'bg-indigo-600 border-indigo-500 text-white'
+                                  : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                              }`}
+                            >
+                              <div className="font-medium">{school['School Name']}</div>
+                              <div className="text-sm opacity-75">
+                                {school['State Name [Public School] Latest available year']} • {school['School Type [Public School] 2019-20']}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
+                </div>
+              )}
+
+              {(formData.schoolType === 'private' || formData.schoolType === 'custom') && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Enter your school name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.currentSchool}
+                    onChange={(e) => setFormData({ ...formData, currentSchool: e.target.value })}
+                    placeholder="Enter your school name..."
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
                 </div>
               )}
             </div>
@@ -605,7 +660,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       case 0: return true;
       case 1: return formData.name && formData.email;
       case 2: return formData.location;
-      case 3: return formData.grade;
+      case 3: return formData.grade && (formData.location === 'International' || formData.schoolType);
       case 4: return formData.gpa;
       case 5: return formData.financialSituation;
       case 6: return formData.interests.length > 0;
