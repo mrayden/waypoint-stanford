@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, GraduationCap, User, MapPin, Heart, Target, Building, DollarSign, TrendingUp, School, BookOpen, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GraduationCap, User, MapPin, Heart, Target, Building, DollarSign, TrendingUp, School, BookOpen, Calendar, SkipForward } from 'lucide-react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { saveUserData } from '../utils/cookieUtils';
@@ -1088,13 +1088,23 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       case 4: return formData.grade && (formData.location === 'International' || formData.schoolType);
       case 5: return formData.gpa;
       case 6: return formData.financialSituation;
-      case 7: return formData.interests.length > 0;
-      case 8: return formData.goals.length > 0;
-      case 9: return formData.extracurriculars.length > 0;
-      case 10: return formData.summerPlans.length > 0;
-      case 11: return formData.targetUniversities.length > 0;
+      case 7: return true; // Made optional with skip button
+      case 8: return true; // Made optional with skip button
+      case 9: return true; // Made optional with skip button
+      case 10: return true; // Made optional with skip button
+      case 11: return true; // Made optional with skip button
       case 12: return true; // Degrees are optional
       default: return false;
+    }
+  };
+
+  const isOptionalStep = () => {
+    return [5, 7, 8, 9, 10, 11, 12].includes(currentStep);
+  };
+
+  const handleSkip = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
@@ -1127,6 +1137,9 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               <currentStepData.icon size={24} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">{currentStepData.title}</h1>
+            {isOptionalStep() && (
+              <p className="text-sm text-slate-400">This step is optional - you can skip and add this information later</p>
+            )}
           </div>
 
           {/* Content */}
@@ -1146,24 +1159,37 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               Previous
             </Button>
 
-            {isLastStep ? (
-              <Button
-                onClick={handleFinish}
-                disabled={!canProceed()}
-                className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500"
-              >
-                Complete Setup
-              </Button>
-            ) : (
-              <Button
-                onClick={handleNext}
-                disabled={!canProceed()}
-                className="flex items-center gap-2"
-              >
-                Next
-                <ChevronRight size={16} />
-              </Button>
-            )}
+            <div className="flex gap-3">
+              {isOptionalStep() && !isLastStep && (
+                <Button
+                  onClick={handleSkip}
+                  variant="ghost"
+                  className="flex items-center gap-2 text-slate-400 hover:text-white"
+                >
+                  <SkipForward size={16} />
+                  Skip for now
+                </Button>
+              )}
+
+              {isLastStep ? (
+                <Button
+                  onClick={handleFinish}
+                  disabled={!canProceed()}
+                  className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500"
+                >
+                  Complete Setup
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleNext}
+                  disabled={!canProceed()}
+                  className="flex items-center gap-2"
+                >
+                  Next
+                  <ChevronRight size={16} />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
