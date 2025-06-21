@@ -5,7 +5,6 @@ import { Plus, MapPin, Globe, RotateCcw } from 'lucide-react';
 import PlanningGrid from './PlanningGrid';
 import GoalCard from './GoalCard';
 import AddGoalModal from './AddGoalModal';
-import LeftPanel from './LeftPanel';
 import MarketplaceView from './MarketplaceView';
 import { useGoalStore } from '../store/goalStore';
 import { Goal } from '../types/Goal';
@@ -37,49 +36,26 @@ const WaypointPlanner = () => {
     setActiveGoal(null);
   };
 
-  return (
-    <div className="h-screen flex bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        {/* Left Panel */}
-        {activeTab === 'local' ? (
-          <LeftPanel activeTab={activeTab} />
-        ) : (
-          <MarketplaceView />
-        )}
+  if (activeTab === 'marketplace') {
+    return <MarketplaceView onBackToLocal={() => setActiveTab('local')} />;
+  }
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700 p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold">
-                  W
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-white">Waypoint</h1>
-                  <span className="text-sm text-slate-400">Plan Your Future</span>
-                </div>
+  return (
+    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        {/* Header with Navigation */}
+        <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700 p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold">
+                W
               </div>
-              
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={resetGoals}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition-colors"
-                >
-                  <RotateCcw size={16} />
-                  Reset
-                </button>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors"
-                >
-                  <Plus size={20} />
-                  Add Goal
-                </button>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Waypoint</h1>
+                <span className="text-sm text-slate-400">Plan Your Future</span>
               </div>
             </div>
-
+            
             {/* Tab Navigation */}
             <div className="flex gap-2">
               <button
@@ -105,11 +81,29 @@ const WaypointPlanner = () => {
                 Marketplace
               </button>
             </div>
-          </header>
+          </div>
+        </header>
 
-          {/* Planning Grid */}
-          <div className="flex-1 overflow-hidden">
-            <PlanningGrid />
+        {/* Main Content */}
+        <div className="flex-1 relative overflow-hidden">
+          <PlanningGrid />
+          
+          {/* Floating Create Goal Section */}
+          <div className="absolute bottom-6 right-6 flex flex-col gap-3">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-full font-medium transition-all duration-200 hover:scale-105 shadow-lg"
+            >
+              <Plus size={20} />
+              Add Goal
+            </button>
+            <button
+              onClick={resetGoals}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-full font-medium transition-colors shadow-lg"
+            >
+              <RotateCcw size={16} />
+              Reset
+            </button>
           </div>
         </div>
         

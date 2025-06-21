@@ -15,6 +15,7 @@ interface GoalStore {
   updateGoal: (id: string, updates: Partial<Goal>) => void;
   moveGoal: (id: string, category: string, semester: string) => void;
   setFilter: (key: 'category' | 'semester', value: string) => void;
+  resetGoals: () => void;
 }
 
 const defaultCategories: Category[] = [
@@ -104,5 +105,8 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
   },
   setFilter: (key, value) => set((state) => ({
     filters: { ...state.filters, [key]: value }
+  })),
+  resetGoals: () => set(() => ({
+    goals: defaultGoals
   })),
 }));

@@ -1,7 +1,11 @@
 
 import React, { useState } from 'react';
-import { Search, Globe, Star, Users, Clock, ExternalLink, Plus } from 'lucide-react';
+import { Search, Globe, Star, Users, Clock, ExternalLink, Plus, ArrowLeft } from 'lucide-react';
 import AddGoalModal from './AddGoalModal';
+
+interface MarketplaceViewProps {
+  onBackToLocal: () => void;
+}
 
 interface MarketplaceOpportunity {
   id: string;
@@ -17,7 +21,7 @@ interface MarketplaceOpportunity {
   applicationUrl?: string;
 }
 
-const MarketplaceView = () => {
+const MarketplaceView = ({ onBackToLocal }: MarketplaceViewProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState<MarketplaceOpportunity | null>(null);
@@ -185,20 +189,24 @@ const MarketplaceView = () => {
   );
 
   return (
-    <>
-      <div className="w-80 bg-slate-800/50 backdrop-blur-sm overflow-y-auto">
-        <div className="p-6">
-          {/* Header */}
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Globe className="text-blue-400" size={20} />
-              <h2 className="text-white font-semibold text-lg">Marketplace</h2>
-            </div>
-            
-            <p className="text-slate-400 text-sm mb-4">
-              Discover national opportunities and competitive programs.
-            </p>
+    <div className="h-screen flex bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Header */}
+      <div className="w-full">
+        <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700 p-4">
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              onClick={onBackToLocal}
+              className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+            >
+              <ArrowLeft size={20} className="text-slate-400" />
+            </button>
+            <Globe className="text-blue-400" size={20} />
+            <h1 className="text-2xl font-bold text-white">Marketplace</h1>
           </div>
+          
+          <p className="text-slate-400 text-sm mb-4">
+            Discover national opportunities and competitive programs.
+          </p>
 
           {/* Search Bar */}
           <div className="relative mb-6">
@@ -208,71 +216,64 @@ const MarketplaceView = () => {
               placeholder="Search opportunities..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full max-w-md pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+        </header>
 
-          {/* Opportunities List */}
-          <div className="space-y-3">
-            <h3 className="text-slate-300 font-medium text-sm">Featured Opportunities ({filteredOpportunities.length})</h3>
-            
-            <div className="space-y-3">
-              {filteredOpportunities.map(opportunity => (
-                <div
-                  key={opportunity.id}
-                  onClick={() => setSelectedOpportunity(opportunity)}
-                  className="p-4 bg-slate-700/40 hover:bg-slate-700/60 rounded-lg border border-slate-600/50 hover:border-slate-500/50 transition-all cursor-pointer group"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-white text-sm font-medium group-hover:text-blue-300 transition-colors">
-                      {opportunity.title}
-                    </h4>
-                    <ExternalLink size={14} className="text-slate-400 group-hover:text-slate-300" />
-                  </div>
-                  
-                  <p className="text-slate-400 text-xs mb-2">{opportunity.organization}</p>
-                  
-                  <div className="flex items-center gap-3 text-xs text-slate-400 mb-2">
-                    <span className="flex items-center gap-1">
-                      <Clock size={12} />
-                      {opportunity.timeCommitment}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Star size={12} />
-                      {opportunity.rating}
-                    </span>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <span className={`px-2 py-1 text-xs rounded ${getDifficultyColor(opportunity.difficulty)}`}>
-                      {opportunity.difficulty}
-                    </span>
-                    <span className="px-2 py-1 bg-blue-900/30 text-blue-300 text-xs rounded">
-                      {opportunity.type}
-                    </span>
-                  </div>
+        {/* Opportunities Grid */}
+        <div className="p-6 overflow-y-auto h-[calc(100vh-200px)]">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredOpportunities.map(opportunity => (
+              <div
+                key={opportunity.id}
+                onClick={() => setSelectedOpportunity(opportunity)}
+                className="p-6 bg-slate-700/40 hover:bg-slate-700/60 rounded-lg border border-slate-600/50 hover:border-slate-500/50 transition-all cursor-pointer group"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="text-white text-lg font-medium group-hover:text-blue-300 transition-colors">
+                    {opportunity.title}
+                  </h4>
+                  <ExternalLink size={16} className="text-slate-400 group-hover:text-slate-300" />
                 </div>
-              ))}
-            </div>
-            
-            {filteredOpportunities.length === 0 && searchQuery && (
-              <div className="text-center py-8 text-slate-400">
-                <p className="text-sm">No opportunities found for "{searchQuery}"</p>
-                <p className="text-xs mt-2">Try adjusting your search terms</p>
+                
+                <p className="text-slate-400 text-sm mb-3">{opportunity.organization}</p>
+                
+                <p className="text-slate-300 text-sm mb-4 line-clamp-2">{opportunity.description}</p>
+                
+                <div className="flex items-center gap-4 text-xs text-slate-400 mb-4">
+                  <span className="flex items-center gap-1">
+                    <Clock size={12} />
+                    {opportunity.timeCommitment}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Star size={12} />
+                    {opportunity.rating}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users size={12} />
+                    {opportunity.participants}
+                  </span>
+                </div>
+                
+                <div className="flex gap-2">
+                  <span className={`px-2 py-1 text-xs rounded ${getDifficultyColor(opportunity.difficulty)}`}>
+                    {opportunity.difficulty}
+                  </span>
+                  <span className="px-2 py-1 bg-blue-900/30 text-blue-300 text-xs rounded">
+                    {opportunity.type}
+                  </span>
+                </div>
               </div>
-            )}
+            ))}
           </div>
-
-          {/* Tips Section */}
-          <div className="mt-6 p-4 bg-slate-700/30 rounded-lg border border-slate-600/50">
-            <h4 className="text-white font-medium text-sm mb-2">Marketplace Tips:</h4>
-            <ul className="text-slate-300 text-xs space-y-1">
-              <li>• Apply early - deadlines are competitive</li>
-              <li>• Strong essays and recommendations needed</li>
-              <li>• Build relevant experience first</li>
-              <li>• Network with alumni if possible</li>
-            </ul>
-          </div>
+          
+          {filteredOpportunities.length === 0 && searchQuery && (
+            <div className="text-center py-16 text-slate-400">
+              <p className="text-lg">No opportunities found for "{searchQuery}"</p>
+              <p className="text-sm mt-2">Try adjusting your search terms</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -288,7 +289,7 @@ const MarketplaceView = () => {
           onClose={() => setSelectedOpportunity(null)}
         />
       )}
-    </>
+    </div>
   );
 };
 
