@@ -49,9 +49,9 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     email: '',
     grade: '',
     location: '',
+    selectedState: '', // for high school search and user location
     currentSchool: '',
     schoolType: '', // public, private, or custom
-    selectedState: '', // for high school search
     gpa: '',
     weightedGpa: '',
     apCourses: [] as string[],
@@ -81,11 +81,61 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [loadHighSchools, setLoadHighSchools] = useState(false);
 
   const stateAbbreviations = [
-    'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY'
+    { abbr: 'AK', name: 'Alaska' },
+    { abbr: 'AL', name: 'Alabama' },
+    { abbr: 'AR', name: 'Arkansas' },
+    { abbr: 'AZ', name: 'Arizona' },
+    { abbr: 'CA', name: 'California' },
+    { abbr: 'CO', name: 'Colorado' },
+    { abbr: 'CT', name: 'Connecticut' },
+    { abbr: 'DC', name: 'District of Columbia' },
+    { abbr: 'DE', name: 'Delaware' },
+    { abbr: 'FL', name: 'Florida' },
+    { abbr: 'GA', name: 'Georgia' },
+    { abbr: 'HI', name: 'Hawaii' },
+    { abbr: 'IA', name: 'Iowa' },
+    { abbr: 'ID', name: 'Idaho' },
+    { abbr: 'IL', name: 'Illinois' },
+    { abbr: 'IN', name: 'Indiana' },
+    { abbr: 'KS', name: 'Kansas' },
+    { abbr: 'KY', name: 'Kentucky' },
+    { abbr: 'LA', name: 'Louisiana' },
+    { abbr: 'MA', name: 'Massachusetts' },
+    { abbr: 'MD', name: 'Maryland' },
+    { abbr: 'ME', name: 'Maine' },
+    { abbr: 'MI', name: 'Michigan' },
+    { abbr: 'MN', name: 'Minnesota' },
+    { abbr: 'MO', name: 'Missouri' },
+    { abbr: 'MS', name: 'Mississippi' },
+    { abbr: 'MT', name: 'Montana' },
+    { abbr: 'NC', name: 'North Carolina' },
+    { abbr: 'ND', name: 'North Dakota' },
+    { abbr: 'NE', name: 'Nebraska' },
+    { abbr: 'NH', name: 'New Hampshire' },
+    { abbr: 'NJ', name: 'New Jersey' },
+    { abbr: 'NM', name: 'New Mexico' },
+    { abbr: 'NV', name: 'Nevada' },
+    { abbr: 'NY', name: 'New York' },
+    { abbr: 'OH', name: 'Ohio' },
+    { abbr: 'OK', name: 'Oklahoma' },
+    { abbr: 'OR', name: 'Oregon' },
+    { abbr: 'PA', name: 'Pennsylvania' },
+    { abbr: 'RI', name: 'Rhode Island' },
+    { abbr: 'SC', name: 'South Carolina' },
+    { abbr: 'SD', name: 'South Dakota' },
+    { abbr: 'TN', name: 'Tennessee' },
+    { abbr: 'TX', name: 'Texas' },
+    { abbr: 'UT', name: 'Utah' },
+    { abbr: 'VA', name: 'Virginia' },
+    { abbr: 'VT', name: 'Vermont' },
+    { abbr: 'WA', name: 'Washington' },
+    { abbr: 'WI', name: 'Wisconsin' },
+    { abbr: 'WV', name: 'West Virginia' },
+    { abbr: 'WY', name: 'Wyoming' }
   ];
 
   useEffect(() => {
-    fetchUniversities();
+    // Load degrees immediately when component mounts
     fetchDegrees();
   }, []);
 
@@ -123,7 +173,11 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       const response = await fetch('https://gist.githubusercontent.com/cblanquera/21c925d1312e9a4de3c269be134f3a6c/raw/4e227bcf3ac9be3adecf64382edd5f7291ef2065/certs.json');
       if (!response.ok) throw new Error('Failed to fetch degrees');
       const data = await response.json();
-      setDegrees(data.slice(0, 100)); // Limit for performance
+      
+      // Load all degrees and sort alphabetically
+      const sortedDegrees = data.sort((a: Degree, b: Degree) => a.degree_title.localeCompare(b.degree_title));
+      setDegrees(sortedDegrees);
+      console.log(`Loaded ${sortedDegrees.length} degrees`);
     } catch (error) {
       console.log('Degrees API failed:', error);
       setDegrees([]);
@@ -278,6 +332,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       email: formData.email,
       grade: formData.grade,
       location: formData.location,
+      selectedState: formData.selectedState,
       currentSchool: formData.currentSchool,
       schoolType: formData.schoolType,
       gpa: formData.gpa,
@@ -403,6 +458,41 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       )
     },
     {
+      title: 'State Selection',
+      icon: MapPin,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              Which state are you located in?
+            </label>
+            <p className="text-sm text-slate-400 mb-4">
+              This helps us find your local high schools and provide relevant information.
+            </p>
+            <Select
+              value={formData.selectedState}
+              onValueChange={(value) => {
+                setFormData({ ...formData, selectedState: value, currentSchool: '' });
+                setHighSchools([]);
+                setLoadHighSchools(false);
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choose your state..." />
+              </SelectTrigger>
+              <SelectContent>
+                {stateAbbreviations.map(state => (
+                  <SelectItem key={state.abbr} value={state.abbr}>
+                    {state.name} ({state.abbr})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )
+    },
+    {
       title: 'Academic Level',
       icon: School,
       content: (
@@ -428,14 +518,14 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
             </div>
           </div>
 
-          {formData.location === 'US' && (
+          {formData.location === 'US' && formData.selectedState && (
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-4">
                 What type of school do you attend?
               </label>
               <div className="grid grid-cols-1 gap-3 mb-4">
                 <button
-                  onClick={() => setFormData({ ...formData, schoolType: 'public', currentSchool: '', selectedState: '' })}
+                  onClick={() => setFormData({ ...formData, schoolType: 'public', currentSchool: '' })}
                   className={`p-4 rounded-lg border text-left transition-all ${
                     formData.schoolType === 'public'
                       ? 'bg-indigo-600 border-indigo-500 text-white'
@@ -443,10 +533,10 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   }`}
                 >
                   <div className="font-medium">Public School</div>
-                  <div className="text-sm opacity-75">Search from US public schools database</div>
+                  <div className="text-sm opacity-75">Search from {formData.selectedState} public schools database</div>
                 </button>
                 <button
-                  onClick={() => setFormData({ ...formData, schoolType: 'private', currentSchool: '', selectedState: '' })}
+                  onClick={() => setFormData({ ...formData, schoolType: 'private', currentSchool: '' })}
                   className={`p-4 rounded-lg border text-left transition-all ${
                     formData.schoolType === 'private'
                       ? 'bg-orange-600 border-orange-500 text-white'
@@ -457,7 +547,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   <div className="text-sm opacity-75">Enter your school name manually</div>
                 </button>
                 <button
-                  onClick={() => setFormData({ ...formData, schoolType: 'custom', currentSchool: '', selectedState: '' })}
+                  onClick={() => setFormData({ ...formData, schoolType: 'custom', currentSchool: '' })}
                   className={`p-4 rounded-lg border text-left transition-all ${
                     formData.schoolType === 'custom'
                       ? 'bg-green-600 border-green-500 text-white'
@@ -471,78 +561,53 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
               {formData.schoolType === 'public' && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Select your state first:
-                  </label>
-                  <Select
-                    value={formData.selectedState}
-                    onValueChange={(value) => {
-                      setFormData({ ...formData, selectedState: value, currentSchool: '' });
-                      setHighSchools([]);
-                      setLoadHighSchools(false);
+                  <button
+                    onClick={() => {
+                      setLoadHighSchools(true);
+                      fetchHighSchools(formData.selectedState);
                     }}
+                    className={`w-full p-3 rounded-lg border transition-all mb-4 ${
+                      loadHighSchools 
+                        ? 'bg-indigo-600 border-indigo-500 text-white' 
+                        : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                    }`}
+                    disabled={isLoadingSchools}
                   >
-                    <SelectTrigger className="w-full mb-4">
-                      <SelectValue placeholder="Choose your state..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {stateAbbreviations.map(state => (
-                        <SelectItem key={state} value={state}>{state}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    {isLoadingSchools ? `Loading ${formData.selectedState} schools...` : 
+                     loadHighSchools ? `${highSchools.length} schools loaded` : 
+                     `Load High Schools for ${formData.selectedState}`}
+                  </button>
                   
-                  {formData.selectedState && (
+                  {loadHighSchools && (
                     <div>
-                      <button
-                        onClick={() => {
-                          setLoadHighSchools(true);
-                          fetchHighSchools(formData.selectedState);
-                        }}
-                        className={`w-full p-3 rounded-lg border transition-all mb-4 ${
-                          loadHighSchools 
-                            ? 'bg-indigo-600 border-indigo-500 text-white' 
-                            : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
-                        }`}
-                        disabled={isLoadingSchools}
-                      >
-                        {isLoadingSchools ? `Loading ${formData.selectedState} schools...` : 
-                         loadHighSchools ? `${highSchools.length} schools loaded` : 
-                         `Load High Schools for ${formData.selectedState}`}
-                      </button>
+                      <input
+                        type="text"
+                        value={schoolSearch}
+                        onChange={(e) => setSchoolSearch(e.target.value)}
+                        placeholder="Search your high school..."
+                        className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                      />
                       
-                      {loadHighSchools && (
-                        <div>
-                          <input
-                            type="text"
-                            value={schoolSearch}
-                            onChange={(e) => setSchoolSearch(e.target.value)}
-                            placeholder="Search your high school..."
-                            className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
-                          />
-                          
-                          {isLoadingSchools ? (
-                            <div className="text-center text-slate-400 py-4">Loading schools...</div>
-                          ) : (
-                            <div className="max-h-40 overflow-y-auto space-y-2">
-                              {filteredHighSchools.slice(0, 20).map((school, index) => (
-                                <button
-                                  key={index}
-                                  onClick={() => setFormData({ ...formData, currentSchool: school.name })}
-                                  className={`w-full p-3 rounded-lg border text-left transition-all ${
-                                    formData.currentSchool === school.name
-                                      ? 'bg-indigo-600 border-indigo-500 text-white'
-                                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
-                                  }`}
-                                >
-                                  <div className="font-medium">{school.name}</div>
-                                  <div className="text-sm opacity-75">
-                                    {school.district} • {school.level} • {school.type}
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          )}
+                      {isLoadingSchools ? (
+                        <div className="text-center text-slate-400 py-4">Loading schools...</div>
+                      ) : (
+                        <div className="max-h-40 overflow-y-auto space-y-2">
+                          {filteredHighSchools.slice(0, 20).map((school, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setFormData({ ...formData, currentSchool: school.name })}
+                              className={`w-full p-3 rounded-lg border text-left transition-all ${
+                                formData.currentSchool === school.name
+                                  ? 'bg-indigo-600 border-indigo-500 text-white'
+                                  : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                              }`}
+                            >
+                              <div className="font-medium">{school.name}</div>
+                              <div className="text-sm opacity-75">
+                                {school.district} • {school.level} • {school.type}
+                              </div>
+                            </button>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -969,38 +1034,41 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
             <label className="block text-sm font-medium text-slate-300 mb-4">
               Are you interested in any specific degrees or certifications?
             </label>
-            <input
-              type="text"
-              value={degreeSearch}
-              onChange={(e) => setDegreeSearch(e.target.value)}
-              placeholder="Search degrees and certifications..."
-              className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
-            />
             
             {isLoadingDegrees ? (
-              <div className="text-center text-slate-400 py-8">Loading degrees...</div>
+              <div className="text-center text-slate-400 py-8">Loading degrees database...</div>
             ) : (
-              <div className="max-h-80 overflow-y-auto space-y-2">
-                {filteredDegrees.slice(0, 30).map((degree, index) => (
-                  <button
-                    key={index}
-                    onClick={() => toggleArrayItem(
-                      formData.targetDegrees, 
-                      degree.degree_title, 
-                      (items) => setFormData({ ...formData, targetDegrees: items })
-                    )}
-                    className={`w-full p-3 rounded-lg border text-left transition-all ${
-                      formData.targetDegrees.includes(degree.degree_title)
-                        ? 'bg-indigo-600 border-indigo-500 text-white'
-                        : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
-                    }`}
-                  >
-                    <div className="font-medium">{degree.degree_title}</div>
-                    <div className="text-sm opacity-75">
-                      {degree.degree_reference} • {degree.degree_level}
-                    </div>
-                  </button>
-                ))}
+              <div>
+                <input
+                  type="text"
+                  value={degreeSearch}
+                  onChange={(e) => setDegreeSearch(e.target.value)}
+                  placeholder="Search degrees and certifications..."
+                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                />
+                
+                <div className="max-h-80 overflow-y-auto space-y-2">
+                  {filteredDegrees.slice(0, 30).map((degree, index) => (
+                    <button
+                      key={index}
+                      onClick={() => toggleArrayItem(
+                        formData.targetDegrees, 
+                        degree.degree_title, 
+                        (items) => setFormData({ ...formData, targetDegrees: items })
+                      )}
+                      className={`w-full p-3 rounded-lg border text-left transition-all ${
+                        formData.targetDegrees.includes(degree.degree_title)
+                          ? 'bg-indigo-600 border-indigo-500 text-white'
+                          : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      }`}
+                    >
+                      <div className="font-medium">{degree.degree_title}</div>
+                      <div className="text-sm opacity-75">
+                        {degree.degree_reference} • {degree.degree_level}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -1016,15 +1084,16 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       case 0: return true;
       case 1: return formData.name && formData.email;
       case 2: return formData.location;
-      case 3: return formData.grade && (formData.location === 'International' || formData.schoolType);
-      case 4: return formData.gpa;
-      case 5: return formData.financialSituation;
-      case 6: return formData.interests.length > 0;
-      case 7: return formData.goals.length > 0;
-      case 8: return formData.extracurriculars.length > 0;
-      case 9: return formData.summerPlans.length > 0;
-      case 10: return formData.targetUniversities.length > 0;
-      case 11: return true; // Degrees are optional
+      case 3: return formData.location === 'International' || formData.selectedState;
+      case 4: return formData.grade && (formData.location === 'International' || formData.schoolType);
+      case 5: return formData.gpa;
+      case 6: return formData.financialSituation;
+      case 7: return formData.interests.length > 0;
+      case 8: return formData.goals.length > 0;
+      case 9: return formData.extracurriculars.length > 0;
+      case 10: return formData.summerPlans.length > 0;
+      case 11: return formData.targetUniversities.length > 0;
+      case 12: return true; // Degrees are optional
       default: return false;
     }
   };
