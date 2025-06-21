@@ -164,8 +164,8 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       case 'WelcomeStep':
         return (
           <div className="text-center space-y-6">
-            <div className="w-24 h-24 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center mx-auto text-4xl">
-              🗺️
+            <div className="w-24 h-24 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center mx-auto text-white font-bold text-3xl">
+              W
             </div>
             <div className="space-y-4">
               <p className="text-xl text-slate-300 leading-relaxed">
@@ -173,7 +173,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                 extracurriculars, and career goals in one beautiful visual timeline.
               </p>
               <p className="text-lg text-slate-400">
-                Think of it as your personal roadmap to success — but way more fun and interactive!
+                Think of it as your personal roadmap to success — structured, clear, and actionable.
               </p>
             </div>
           </div>
@@ -307,10 +307,10 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
       case 'InterestsStep':
         const interests = [
-          '🔬 Science & Research', '💻 Computer Science', '🎨 Arts & Design', 
-          '📊 Business & Finance', '⚖️ Law & Government', '🏥 Medicine & Health',
-          '🌱 Environment & Sustainability', '🏗️ Engineering', '📚 Literature & Writing',
-          '🌍 International Relations', '🎭 Theater & Performance', '📸 Media & Film'
+          'Science & Research', 'Computer Science', 'Arts & Design', 
+          'Business & Finance', 'Law & Government', 'Medicine & Health',
+          'Environment & Sustainability', 'Engineering', 'Literature & Writing',
+          'International Relations', 'Theater & Performance', 'Media & Film'
         ];
         
         return (
@@ -341,12 +341,12 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
 
       case 'FirstGoalsStep':
         const suggestedGoals = [
-          { title: 'AP Computer Science', type: 'course', category: 'school', icon: '💻' },
-          { title: 'Summer Research Program', type: 'summer', category: 'summer', icon: '🔬' },
-          { title: 'Student Government', type: 'extracurricular', category: 'extracurricular', icon: '🗳️' },
-          { title: 'College Applications', type: 'career', category: 'career', icon: '🎓' },
-          { title: 'Varsity Soccer', type: 'sports', category: 'sports', icon: '⚽' },
-          { title: 'National Honor Society', type: 'extracurricular', category: 'extracurricular', icon: '🏆' }
+          { title: 'AP Computer Science', type: 'course', category: 'school', icon: 'CS' },
+          { title: 'Summer Research Program', type: 'summer', category: 'summer', icon: 'RS' },
+          { title: 'Student Government', type: 'extracurricular', category: 'extracurricular', icon: 'SG' },
+          { title: 'College Applications', type: 'career', category: 'career', icon: 'CA' },
+          { title: 'Varsity Soccer', type: 'sports', category: 'sports', icon: 'VS' },
+          { title: 'National Honor Society', type: 'extracurricular', category: 'extracurricular', icon: 'NHS' }
         ];
         
         return (
@@ -366,7 +366,9 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{goal.icon}</span>
+                    <div className="w-8 h-8 bg-slate-600 rounded flex items-center justify-center text-xs font-medium text-white">
+                      {goal.icon}
+                    </div>
                     <div>
                       <div className="font-medium">{goal.title}</div>
                       <div className="text-sm text-slate-400 capitalize">{goal.type} • {goal.category}</div>

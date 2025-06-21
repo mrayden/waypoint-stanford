@@ -8,7 +8,7 @@ import RightPanel from './RightPanel';
 import GoalCard from './GoalCard';
 import { useGoalStore } from '../store/goalStore';
 import { useOnboarding } from '../hooks/useOnboarding';
-import { getUserData } from '../utils/cookieUtils';
+import { getUserData, clearUserData } from '../utils/cookieUtils';
 import { Goal } from '../types/Goal';
 
 const WaypointPlanner = () => {
@@ -34,6 +34,14 @@ const WaypointPlanner = () => {
     setActiveGoal(null);
   };
 
+  const handleResetAccount = () => {
+    if (confirm('Are you sure you want to reset your account? This will clear all your data and restart the onboarding process.')) {
+      clearUserData();
+      resetOnboarding();
+      window.location.reload();
+    }
+  };
+
   return (
     <div className="h-screen flex overflow-hidden">
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -45,8 +53,8 @@ const WaypointPlanner = () => {
           <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center">
-                  🗺️
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold">
+                  W
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-white">Waypoint</h1>
@@ -65,12 +73,12 @@ const WaypointPlanner = () => {
                   </div>
                   
                   <button
-                    onClick={resetOnboarding}
+                    onClick={handleResetAccount}
                     className="flex items-center gap-2 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-sm transition-colors"
-                    title="Reset onboarding"
+                    title="Reset account and restart onboarding"
                   >
                     <RotateCcw size={16} />
-                    Reset
+                    Reset Account
                   </button>
                 </div>
               )}
