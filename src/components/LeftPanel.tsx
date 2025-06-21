@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Plus, Search, BookOpen, Sun, Target, Briefcase, Trophy, MapPin, Globe, ExternalLink, Clock, Users } from 'lucide-react';
+import { Plus, Search, BookOpen, Target, Briefcase, Trophy, MapPin, X, Clock, Users, ExternalLink } from 'lucide-react';
 import { useGoalStore } from '../store/goalStore';
 import AddGoalModal from './AddGoalModal';
 
@@ -7,92 +8,231 @@ interface LeftPanelProps {
   activeTab: 'local' | 'marketplace';
 }
 
+interface OpportunityDetails {
+  id: string;
+  title: string;
+  organization: string;
+  location: string;
+  type: string;
+  timeCommitment: string;
+  description: string;
+  requirements: string[];
+  benefits: string[];
+  contact: string;
+  applicationDeadline?: string;
+}
+
 const LeftPanel = ({ activeTab }: LeftPanelProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [panelTab, setPanelTab] = useState('add');
+  const [selectedOpportunity, setSelectedOpportunity] = useState<OpportunityDetails | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const localOpportunities = [
-    { id: 'local-research', icon: BookOpen, label: 'University Research', color: 'blue', description: 'Reach out to local professors' },
-    { id: 'local-hospital', icon: Target, label: 'Hospital Volunteer', color: 'red', description: 'Build medical experience locally' },
-    { id: 'local-government', icon: Briefcase, label: 'City Hall Internship', color: 'purple', description: 'Learn about local politics' },
-    { id: 'local-business', icon: Trophy, label: 'Local Business', color: 'green', description: 'Start or intern at local companies' },
-    { id: 'local-nonprofit', icon: Target, label: 'Community Service', color: 'yellow', description: 'Lead local volunteer projects' },
-  ];
-
-  const marketplaceListings = [
+  const localOpportunities: OpportunityDetails[] = [
     {
-      id: 1,
-      title: 'Library Helper - Boulder Public Library',
-      location: 'Boulder, CO',
-      type: 'Volunteer',
-      timeCommitment: '5-10 hours/week',
-      description: 'Help with children\'s reading programs and book organization. Great for students interested in education.',
-      requirements: 'High school student, reliable schedule',
-      contact: 'Apply online or visit in person',
-      postedDays: 3
-    },
-    {
-      id: 2,
-      title: 'CU Research Assistant - Psychology Dept',
-      location: 'University of Colorado Boulder',
+      id: 'local-research',
+      title: 'Research Assistant Position',
+      organization: 'University of Colorado Boulder',
+      location: 'CU Boulder Campus',
       type: 'Research',
       timeCommitment: '8-12 hours/week',
-      description: 'Assist with data collection for cognitive psychology studies. Opportunity to co-author research papers.',
-      requirements: 'GPA 3.5+, psychology or neuroscience interest',
-      contact: 'Email Dr. Sarah Johnson: s.johnson@colorado.edu',
-      postedDays: 1
+      description: 'Join a cutting-edge research team in the Psychology Department studying cognitive development in adolescents. Gain hands-on experience with data collection, analysis, and research methodology.',
+      requirements: [
+        'High school junior or senior',
+        'GPA of 3.5 or higher',
+        'Interest in psychology or neuroscience',
+        'Reliable schedule commitment'
+      ],
+      benefits: [
+        'Research experience for college applications',
+        'Potential co-authorship on publications',
+        'Strong letter of recommendation',
+        'Graduate school preparation'
+      ],
+      contact: 'Dr. Sarah Johnson - s.johnson@colorado.edu',
+      applicationDeadline: 'Rolling basis'
     },
     {
-      id: 3,
-      title: 'Math Tutor - Boulder High Schools',
-      location: 'Various Boulder High Schools',
-      type: 'Tutoring',
-      timeCommitment: '3-6 hours/week',
-      description: 'Peer tutoring program for algebra and calculus students. Build leadership and teaching skills.',
-      requirements: 'Strong math background, completed calculus',
-      contact: 'Contact school counselors',
-      postedDays: 5
-    },
-    {
-      id: 4,
-      title: 'Environmental Lab Assistant',
-      location: 'CU Environmental Science Building',
-      type: 'Research',
-      timeCommitment: '6-8 hours/week',
-      description: 'Support water quality testing and environmental data analysis. Perfect for pre-med or environmental science students.',
-      requirements: 'Chemistry background preferred',
-      contact: 'Prof. Mike Chen: m.chen@colorado.edu',
-      postedDays: 2
-    },
-    {
-      id: 5,
-      title: 'Youth Mentor - Boys & Girls Club',
-      location: 'Boulder Boys & Girls Club',
-      type: 'Mentoring',
+      id: 'local-hospital',
+      title: 'Hospital Volunteer Program',
+      organization: 'Boulder Community Health',
+      location: 'Boulder Community Hospital',
+      type: 'Healthcare Volunteer',
       timeCommitment: '4-6 hours/week',
-      description: 'Mentor middle school students in academics and life skills. Develop leadership and communication abilities.',
-      requirements: 'Background check required, 16+',
-      contact: 'Visit club or call (303) 442-2582',
-      postedDays: 7
+      description: 'Support patient services, assist nursing staff, and gain valuable healthcare exposure. Perfect for students interested in medical careers.',
+      requirements: [
+        'Must be 16 years or older',
+        'Complete 20-hour training program',
+        'Background check required',
+        'Minimum 6-month commitment'
+      ],
+      benefits: [
+        'Direct healthcare experience',
+        'Patient interaction skills',
+        'Medical field networking',
+        'Community service hours'
+      ],
+      contact: 'Volunteer Services - (303) 415-7000',
+      applicationDeadline: 'Apply 2 months in advance'
     },
     {
-      id: 6,
-      title: 'Hospital Volunteer - Boulder Community Health',
-      location: 'Boulder Community Health',
-      type: 'Healthcare',
-      timeCommitment: '4 hours/week minimum',
-      description: 'Support patient services, assist nursing staff, gain healthcare exposure. Great for pre-med students.',
-      requirements: 'Complete volunteer training program',
-      contact: 'Apply through hospital website',
-      postedDays: 4
+      id: 'local-government',
+      title: 'City Hall Internship',
+      organization: 'City of Boulder',
+      location: 'Boulder City Hall',
+      type: 'Government Internship',
+      timeCommitment: '6-10 hours/week',
+      description: 'Learn about local government operations, assist with community projects, and attend city council meetings. Great introduction to public service.',
+      requirements: [
+        'High school student',
+        'Interest in government/politics',
+        'Strong communication skills',
+        'Professional attitude'
+      ],
+      benefits: [
+        'Government experience',
+        'Public speaking opportunities',
+        'Civic engagement understanding',
+        'Professional references'
+      ],
+      contact: 'Human Resources - hr@bouldercolorado.gov'
+    },
+    {
+      id: 'local-business',
+      title: 'Local Business Mentorship',
+      organization: 'Boulder Chamber of Commerce',
+      location: 'Various Boulder Businesses',
+      type: 'Business/Entrepreneurship',
+      timeCommitment: '3-5 hours/week',
+      description: 'Shadow local business owners, learn about entrepreneurship, and potentially start your own project with mentorship support.',
+      requirements: [
+        'Entrepreneurial interest',
+        'Self-motivated',
+        'Professional communication',
+        'Flexible schedule'
+      ],
+      benefits: [
+        'Business skills development',
+        'Entrepreneurship experience',
+        'Professional networking',
+        'Real-world application'
+      ],
+      contact: 'Boulder Chamber - info@boulderchamber.com'
+    },
+    {
+      id: 'local-nonprofit',
+      title: 'Community Service Leadership',
+      organization: 'Boulder Community Foundation',
+      location: 'Various Boulder Locations',
+      type: 'Nonprofit/Service',
+      timeCommitment: '5-8 hours/week',
+      description: 'Lead volunteer projects, organize community events, and make a direct impact on local issues like homelessness, education, and environment.',
+      requirements: [
+        'Leadership potential',
+        'Passion for community service',
+        'Organizational skills',
+        'Team collaboration'
+      ],
+      benefits: [
+        'Leadership experience',
+        'Community impact',
+        'Event planning skills',
+        'Service hours for college'
+      ],
+      contact: 'Community Programs - programs@bouldercommunityfoundation.org'
     }
   ];
 
-  const filteredListings = marketplaceListings.filter(listing =>
-    listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    listing.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    listing.type.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredOpportunities = localOpportunities.filter(opp =>
+    opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    opp.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    opp.type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const OpportunityModal = ({ opportunity, onClose }: { opportunity: OpportunityDetails; onClose: () => void }) => (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-xl font-bold text-white mb-1">{opportunity.title}</h3>
+            <p className="text-slate-300">{opportunity.organization}</p>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white">
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-2 text-sm text-slate-300">
+              <MapPin size={16} />
+              {opportunity.location}
+            </div>
+            <div className="flex items-center gap-2 text-sm text-slate-300">
+              <Clock size={16} />
+              {opportunity.timeCommitment}
+            </div>
+          </div>
+
+          <div className="bg-indigo-900/20 border border-indigo-600/30 rounded-lg p-3">
+            <span className="text-indigo-300 text-sm font-medium">{opportunity.type}</span>
+          </div>
+
+          <div>
+            <h4 className="text-white font-medium mb-2">Description</h4>
+            <p className="text-slate-300 text-sm leading-relaxed">{opportunity.description}</p>
+          </div>
+
+          <div>
+            <h4 className="text-white font-medium mb-2">Requirements</h4>
+            <ul className="space-y-1">
+              {opportunity.requirements.map((req, index) => (
+                <li key={index} className="text-slate-300 text-sm flex items-start gap-2">
+                  <span className="text-green-400 mt-1">•</span>
+                  {req}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-white font-medium mb-2">Benefits</h4>
+            <ul className="space-y-1">
+              {opportunity.benefits.map((benefit, index) => (
+                <li key={index} className="text-slate-300 text-sm flex items-start gap-2">
+                  <span className="text-blue-400 mt-1">•</span>
+                  {benefit}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-slate-700/30 rounded-lg p-4">
+            <h4 className="text-white font-medium mb-2">Contact Information</h4>
+            <p className="text-slate-300 text-sm">{opportunity.contact}</p>
+            {opportunity.applicationDeadline && (
+              <p className="text-yellow-400 text-sm mt-1">
+                Application: {opportunity.applicationDeadline}
+              </p>
+            )}
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex-1 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              Add to My Plan
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 
   return (
@@ -101,213 +241,106 @@ const LeftPanel = ({ activeTab }: LeftPanelProps) => {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-4">
-            {activeTab === 'local' ? (
-              <MapPin className="text-green-400" size={20} />
-            ) : (
-              <Globe className="text-blue-400" size={20} />
-            )}
-            <h2 className="text-white font-semibold text-lg">
-              {activeTab === 'local' ? 'Local Opportunities' : 'Marketplace'}
-            </h2>
+            <MapPin className="text-green-400" size={20} />
+            <h2 className="text-white font-semibold text-lg">Local Opportunities</h2>
           </div>
           
-          {/* Tabs */}
-          <div className="flex bg-slate-700/50 rounded-lg p-1 mb-4">
-            <button
-              onClick={() => setPanelTab('add')}
-              className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                panelTab === 'add' 
-                  ? 'bg-indigo-600 text-white' 
-                  : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              Add Goals
-            </button>
-            <button
-              onClick={() => setPanelTab('explore')}
-              className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                panelTab === 'explore' 
-                  ? 'bg-indigo-600 text-white' 
-                  : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              {activeTab === 'marketplace' ? 'Browse' : 'Explore'}
-            </button>
-          </div>
+          <p className="text-slate-400 text-sm mb-4">
+            Discover opportunities in the Boulder, CO area. Lower competition, easier to get started.
+          </p>
         </div>
 
-        {panelTab === 'add' && (
-          <div className="space-y-4">
-            {/* Quick Add Button */}
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-lg text-white font-medium transition-all duration-200 hover:scale-105 shadow-lg"
-            >
-              <Plus size={20} />
-              Create New Goal
-            </button>
+        {/* Quick Add Button */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-lg text-white font-medium transition-all duration-200 hover:scale-105 shadow-lg mb-6"
+        >
+          <Plus size={20} />
+          Create New Goal
+        </button>
 
-            {/* Opportunity Categories - only show for local */}
-            {activeTab === 'local' && (
-              <>
-                <div className="space-y-3">
-                  <h3 className="text-slate-300 font-medium text-sm">Local Focus Areas</h3>
-                  {localOpportunities.map(opportunity => (
-                    <button
-                      key={opportunity.id}
-                      onClick={() => setIsModalOpen(true)}
-                      className="w-full p-3 bg-slate-700/50 hover:bg-slate-700 rounded-lg transition-all duration-200 hover:scale-105 group text-left"
-                    >
-                      <div className="flex items-start gap-3">
-                        <opportunity.icon size={18} className="text-slate-400 group-hover:text-white mt-0.5" />
-                        <div className="flex-1">
-                          <div className="text-white text-sm font-medium">{opportunity.label}</div>
-                          <div className="text-slate-400 text-xs mt-1">{opportunity.description}</div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
+          <input
+            type="text"
+            placeholder="Search opportunities..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+        </div>
 
-                {/* Tips Section */}
-                <div className="mt-6 p-4 bg-slate-700/30 rounded-lg border border-slate-600/50">
-                  <h4 className="text-white font-medium text-sm mb-2">Local Strategy Tips:</h4>
-                  <ul className="text-slate-300 text-xs space-y-1">
-                    <li>• Email professors at nearby universities</li>
-                    <li>• Visit local hospitals, nonprofits, government offices</li>
-                    <li>• Network through family, school connections</li>
-                    <li>• Lower competition, easier to get started</li>
-                  </ul>
+        {/* Opportunities List */}
+        <div className="space-y-3">
+          <h3 className="text-slate-300 font-medium text-sm">Available Opportunities ({filteredOpportunities.length})</h3>
+          
+          <div className="space-y-3">
+            {filteredOpportunities.map(opportunity => (
+              <div
+                key={opportunity.id}
+                onClick={() => setSelectedOpportunity(opportunity)}
+                className="p-4 bg-slate-700/40 hover:bg-slate-700/60 rounded-lg border border-slate-600/50 hover:border-slate-500/50 transition-all cursor-pointer group"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="text-white text-sm font-medium group-hover:text-indigo-300 transition-colors">
+                    {opportunity.title}
+                  </h4>
+                  <ExternalLink size={14} className="text-slate-400 group-hover:text-slate-300" />
                 </div>
-              </>
-            )}
-          </div>
-        )}
-
-        {panelTab === 'explore' && activeTab === 'local' && (
-          <div className="space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
-              <input
-                type="text"
-                placeholder="Search local opportunities..."
-                className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Browse Categories */}
-            <div className="space-y-3">
-              <h3 className="text-slate-300 font-medium text-sm">Browse Categories</h3>
-              <div className="grid grid-cols-1 gap-2">
-                <div className="p-3 bg-slate-700/30 rounded-lg">
-                  <div className="text-white text-sm font-medium">Healthcare</div>
-                  <div className="text-slate-400 text-xs">Hospitals, clinics, research</div>
+                
+                <p className="text-slate-400 text-xs mb-2">{opportunity.organization}</p>
+                
+                <div className="flex items-center gap-3 text-xs text-slate-400 mb-2">
+                  <span className="flex items-center gap-1">
+                    <MapPin size={12} />
+                    {opportunity.location}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock size={12} />
+                    {opportunity.timeCommitment}
+                  </span>
                 </div>
-                <div className="p-3 bg-slate-700/30 rounded-lg">
-                  <div className="text-white text-sm font-medium">Government</div>
-                  <div className="text-slate-400 text-xs">City hall, courts, agencies</div>
-                </div>
-                <div className="p-3 bg-slate-700/30 rounded-lg">
-                  <div className="text-white text-sm font-medium">Universities</div>
-                  <div className="text-slate-400 text-xs">Research labs, professors</div>
+                
+                <div className="inline-block px-2 py-1 bg-green-900/30 text-green-300 text-xs rounded">
+                  {opportunity.type}
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        )}
-
-        {panelTab === 'explore' && activeTab === 'marketplace' && (
-          <div className="space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
-              <input
-                type="text"
-                placeholder="Search opportunities in Boulder..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
+          
+          {filteredOpportunities.length === 0 && searchQuery && (
+            <div className="text-center py-8 text-slate-400">
+              <p className="text-sm">No opportunities found for "{searchQuery}"</p>
+              <p className="text-xs mt-2">Try adjusting your search terms</p>
             </div>
+          )}
+        </div>
 
-            {/* Location indicator */}
-            <div className="flex items-center gap-2 text-slate-400 text-sm">
-              <MapPin size={16} />
-              <span>Boulder, CO area</span>
-            </div>
-
-            {/* Marketplace Listings */}
-            <div className="space-y-3">
-              <h3 className="text-slate-300 font-medium text-sm">
-                Available Opportunities ({filteredListings.length})
-              </h3>
-              
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {filteredListings.map(listing => (
-                  <div
-                    key={listing.id}
-                    className="p-4 bg-slate-700/40 hover:bg-slate-700/60 rounded-lg border border-slate-600/50 hover:border-slate-500/50 transition-all cursor-pointer group"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="text-white text-sm font-medium group-hover:text-indigo-300 transition-colors">
-                        {listing.title}
-                      </h4>
-                      <ExternalLink size={14} className="text-slate-400 group-hover:text-slate-300" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3 text-xs text-slate-400">
-                        <span className="flex items-center gap-1">
-                          <MapPin size={12} />
-                          {listing.location}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock size={12} />
-                          {listing.timeCommitment}
-                        </span>
-                      </div>
-                      
-                      <div className="inline-block px-2 py-1 bg-indigo-900/30 text-indigo-300 text-xs rounded">
-                        {listing.type}
-                      </div>
-                      
-                      <p className="text-slate-300 text-xs leading-relaxed">
-                        {listing.description}
-                      </p>
-                      
-                      <div className="text-xs text-slate-400">
-                        <span className="font-medium">Requirements:</span> {listing.requirements}
-                      </div>
-                      
-                      <div className="flex justify-between items-center pt-2 border-t border-slate-600/30">
-                        <span className="text-xs text-slate-400">
-                          Posted {listing.postedDays} days ago
-                        </span>
-                        <span className="text-xs text-indigo-400 font-medium">
-                          {listing.contact}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {filteredListings.length === 0 && searchQuery && (
-                <div className="text-center py-8 text-slate-400">
-                  <p className="text-sm">No opportunities found for "{searchQuery}"</p>
-                  <p className="text-xs mt-2">Try adjusting your search terms</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Tips Section */}
+        <div className="mt-6 p-4 bg-slate-700/30 rounded-lg border border-slate-600/50">
+          <h4 className="text-white font-medium text-sm mb-2">Local Strategy Tips:</h4>
+          <ul className="text-slate-300 text-xs space-y-1">
+            <li>• Email professors at nearby universities</li>
+            <li>• Visit local hospitals, nonprofits, government offices</li>
+            <li>• Network through family, school connections</li>
+            <li>• Lower competition, easier to get started</li>
+          </ul>
+        </div>
       </div>
 
+      {/* Modals */}
       <AddGoalModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
       />
+
+      {selectedOpportunity && (
+        <OpportunityModal
+          opportunity={selectedOpportunity}
+          onClose={() => setSelectedOpportunity(null)}
+        />
+      )}
     </>
   );
 };

@@ -85,20 +85,21 @@ const RightPanel = () => {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="mb-8">
-        <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+      {/* Filters - Greyed Out */}
+      <div className="mb-8 opacity-50 pointer-events-none">
+        <h3 className="text-slate-400 font-semibold text-lg mb-4 flex items-center gap-2">
           <Filter size={20} />
           Filters
         </h3>
         
         {/* Category Filter */}
         <div className="mb-4">
-          <label className="text-slate-300 text-sm font-medium mb-2 block">Category</label>
+          <label className="text-slate-400 text-sm font-medium mb-2 block">Category</label>
           <select
             value={filters.category}
             onChange={(e) => setFilter('category', e.target.value)}
-            className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full p-3 bg-slate-700/30 border border-slate-700 rounded-lg text-slate-500 cursor-not-allowed"
+            disabled
           >
             <option value="all">All Categories</option>
             {categories.map(category => (
@@ -111,11 +112,12 @@ const RightPanel = () => {
 
         {/* Semester Filter */}
         <div className="mb-4">
-          <label className="text-slate-300 text-sm font-medium mb-2 block">Semester</label>
+          <label className="text-slate-400 text-sm font-medium mb-2 block">Semester</label>
           <select
             value={filters.semester}
             onChange={(e) => setFilter('semester', e.target.value)}
-            className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full p-3 bg-slate-700/30 border border-slate-700 rounded-lg text-slate-500 cursor-not-allowed"
+            disabled
           >
             <option value="all">All Semesters</option>
             {semesters.map(semester => (
