@@ -1,119 +1,91 @@
 
-import React, { useState } from 'react';
-import { ArrowRight, ArrowLeft, CheckCircle, Target, Calendar, Users, Briefcase } from 'lucide-react';
-import { useGoalStore } from '../store/goalStore';
-
-interface OnboardingFlowProps {
-  onComplete: () => void;
-}
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, GraduationCap, User, MapPin, Heart, Target, Building } from 'lucide-react';
+import { Button } from './ui/button';
+import { saveUserData } from '../utils/cookieUtils';
 
 interface University {
   name: string;
   country: string;
-  'state-province': string;
-  web_pages: string[];
+  'state-province'?: string;
+  web_pages?: string[];
 }
 
-const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
+// Fallback university data in case API fails
+const fallbackUniversities = [
+  { name: 'Harvard University', country: 'United States', 'state-province': 'Massachusetts' },
+  { name: 'Stanford University', country: 'United States', 'state-province': 'California' },
+  { name: 'Massachusetts Institute of Technology', country: 'United States', 'state-province': 'Massachusetts' },
+  { name: 'University of California, Berkeley', country: 'United States', 'state-province': 'California' },
+  { name: 'Princeton University', country: 'United States', 'state-province': 'New Jersey' },
+  { name: 'Yale University', country: 'United States', 'state-province': 'Connecticut' },
+  { name: 'Columbia University', country: 'United States', 'state-province': 'New York' },
+  { name: 'University of Chicago', country: 'United States', 'state-province': 'Illinois' },
+  { name: 'University of Pennsylvania', country: 'United States', 'state-province': 'Pennsylvania' },
+  { name: 'Cornell University', country: 'United States', 'state-province': 'New York' },
+];
+
+const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [universities, setUniversities] = useState<University[]>([]);
-  const [loadingUniversities, setLoadingUniversities] = useState(false);
-  const [userProfile, setUserProfile] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     grade: '',
     interests: [] as string[],
     goals: [] as string[],
-    targetUniversities: [] as string[]
+    targetUniversities: [] as string[],
   });
-  
-  const { addGoal } = useGoalStore();
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [universitySearch, setUniversitySearch] = useState('');
+  const [isLoadingUniversities, setIsLoadingUniversities] = useState(false);
 
-  const steps = [
-    {
-      id: 'welcome',
-      title: 'Welcome to Waypoint',
-      subtitle: 'Your Visual Future Planner',
-      content: 'WelcomeStep'
-    },
-    {
-      id: 'account',
-      title: 'Create Your Account',
-      subtitle: 'Let\'s get you set up',
-      content: 'AccountStep'
-    },
-    {
-      id: 'profile',
-      title: 'Tell Us About Yourself',
-      subtitle: 'Help us personalize your experience',
-      content: 'ProfileStep'
-    },
-    {
-      id: 'universities',
-      title: 'Target Universities',
-      subtitle: 'Which schools interest you?',
-      content: 'UniversitiesStep'
-    },
-    {
-      id: 'interests',
-      title: 'What Interests You?',
-      subtitle: 'Select areas you want to explore',
-      content: 'InterestsStep'
-    },
-    {
-      id: 'first-goals',
-      title: 'Set Your First Goals',
-      subtitle: 'Let\'s add some goals to get started',
-      content: 'FirstGoalsStep'
-    },
-    {
-      id: 'complete',
-      title: 'You\'re All Set!',
-      subtitle: 'Ready to start planning your future',
-      content: 'CompleteStep'
+  useEffect(() => {
+    fetchUniversities();
+  }, []);
+
+  const fetchUniversities = async () => {
+    setIsLoadingUniversities(true);
+    try {
+      const response = await fetch('https://universities.hipolabs.com/search?country=United+States');
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+      const data = await response.json();
+      setUniversities(data.slice(0, 100)); // Limit to first 100 for performance
+    } catch (error) {
+      console.log('University API failed, using fallback data:', error);
+      setUniversities(fallbackUniversities);
+    } finally {
+      setIsLoadingUniversities(false);
     }
+  };
+
+  const filteredUniversities = universities.filter(uni =>
+    uni.name.toLowerCase().includes(universitySearch.toLowerCase())
+  );
+
+  const interests = [
+    'Computer Science', 'Engineering', 'Medicine', 'Business', 'Arts & Design',
+    'Mathematics', 'Sciences', 'Literature', 'History', 'Psychology',
+    'Economics', 'Political Science', 'Environmental Science', 'Music',
+    'Sports & Athletics', 'Public Service', 'Journalism', 'Architecture'
   ];
 
-  const searchUniversities = async (query: string) => {
-    if (query.length < 2) {
-      setUniversities([]);
-      return;
-    }
-    
-    setLoadingUniversities(true);
-    try {
-      const response = await fetch(`https://universities.hipolabs.com/search?country=United+States&name=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      setUniversities(data.slice(0, 10)); // Limit to 10 results
-    } catch (error) {
-      console.error('Error fetching universities:', error);
-      setUniversities([]);
-    } finally {
-      setLoadingUniversities(false);
-    }
-  };
+  const commonGoals = [
+    'Get into top university', 'Maintain high GPA', 'Take advanced courses',
+    'Join debate team', 'Start a club', 'Volunteer regularly',
+    'Learn programming', 'Study abroad', 'Get leadership role',
+    'Win academic competition', 'Complete internship', 'Write research paper'
+  ];
 
-  const saveUserData = () => {
-    const userData = {
-      ...userProfile,
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString()
-    };
-    
-    // Save to cookies (expires in 1 year)
-    const expires = new Date();
-    expires.setFullYear(expires.getFullYear() + 1);
-    document.cookie = `waypoint_user=${encodeURIComponent(JSON.stringify(userData))}; expires=${expires.toUTCString()}; path=/`;
-    
-    console.log('User data saved:', userData);
-  };
+  const gradeOptions = [
+    '9th Grade (Freshman)', '10th Grade (Sophomore)', 
+    '11th Grade (Junior)', '12th Grade (Senior)'
+  ];
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
-    } else {
-      saveUserData();
-      onComplete();
     }
   };
 
@@ -123,322 +95,246 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     }
   };
 
-  const addInterest = (interest: string) => {
-    setUserProfile(prev => ({
-      ...prev,
-      interests: prev.interests.includes(interest) 
-        ? prev.interests.filter(i => i !== interest)
-        : [...prev.interests, interest]
-    }));
-  };
-
-  const addUniversity = (university: string) => {
-    setUserProfile(prev => ({
-      ...prev,
-      targetUniversities: prev.targetUniversities.includes(university)
-        ? prev.targetUniversities.filter(u => u !== university)
-        : [...prev.targetUniversities, university]
-    }));
-  };
-
-  const addFirstGoal = (goal: { title: string; type: string; category: string; icon: string }) => {
-    setUserProfile(prev => ({
-      ...prev,
-      goals: [...prev.goals, goal.title]
-    }));
-    
-    addGoal({
-      title: goal.title,
-      type: goal.type as any,
-      category: goal.category,
-      semester: 'fall-2025',
-      description: '',
-      status: 'planned',
-      dependencies: [],
-      icon: goal.icon
+  const handleFinish = () => {
+    saveUserData({
+      name: formData.name,
+      email: formData.email,
+      grade: formData.grade,
+      interests: formData.interests,
+      goals: formData.goals,
+      targetUniversities: formData.targetUniversities,
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
     });
+    onComplete();
   };
 
-  const renderStepContent = () => {
-    switch (steps[currentStep].content) {
-      case 'WelcomeStep':
-        return (
-          <div className="text-center space-y-6">
-            <div className="w-24 h-24 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center mx-auto text-white font-bold text-3xl">
-              W
-            </div>
-            <div className="space-y-4">
-              <p className="text-xl text-slate-300 leading-relaxed">
-                Waypoint helps students like you plan your academic journey, summer programs, 
-                extracurriculars, and career goals in one beautiful visual timeline.
-              </p>
-              <p className="text-lg text-slate-400">
-                Think of it as your personal roadmap to success — structured, clear, and actionable.
-              </p>
-            </div>
-          </div>
-        );
+  const toggleArrayItem = (array: string[], item: string, setter: (items: string[]) => void) => {
+    if (array.includes(item)) {
+      setter(array.filter(i => i !== item));
+    } else {
+      setter([...array, item]);
+    }
+  };
 
-      case 'AccountStep':
-        return (
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-slate-300 font-medium mb-2">Full Name *</label>
-                <input
-                  type="text"
-                  value={userProfile.name}
-                  onChange={(e) => setUserProfile(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Enter your full name"
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-slate-300 font-medium mb-2">Email Address *</label>
-                <input
-                  type="email"
-                  value={userProfile.email}
-                  onChange={(e) => setUserProfile(prev => ({ ...prev, email: e.target.value }))}
-                  placeholder="your.email@example.com"
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-slate-300 font-medium mb-2">What grade are you in? *</label>
-                <select
-                  value={userProfile.grade}
-                  onChange={(e) => setUserProfile(prev => ({ ...prev, grade: e.target.value }))}
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+  const steps = [
+    {
+      title: 'Welcome to Waypoint',
+      icon: GraduationCap,
+      content: (
+        <div className="text-center space-y-6">
+          <div className="w-20 h-20 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center mx-auto">
+            <GraduationCap size={40} className="text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-3">Plan Your Academic Journey</h2>
+            <p className="text-slate-300 max-w-md mx-auto">
+              Waypoint helps you visualize and organize your path to college and beyond. 
+              Let's start by getting to know you better.
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Personal Information',
+      icon: User,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="Enter your full name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="Enter your email"
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Academic Level',
+      icon: MapPin,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              What grade are you currently in?
+            </label>
+            <div className="grid grid-cols-1 gap-3">
+              {gradeOptions.map(grade => (
+                <button
+                  key={grade}
+                  onClick={() => setFormData({ ...formData, grade })}
+                  className={`p-4 rounded-lg border text-left transition-all ${
+                    formData.grade === grade
+                      ? 'bg-indigo-600 border-indigo-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
                 >
-                  <option value="">Select your grade</option>
-                  <option value="6th">6th Grade</option>
-                  <option value="7th">7th Grade</option>
-                  <option value="8th">8th Grade</option>
-                  <option value="9th">9th Grade (Freshman)</option>
-                  <option value="10th">10th Grade (Sophomore)</option>
-                  <option value="11th">11th Grade (Junior)</option>
-                  <option value="12th">12th Grade (Senior)</option>
-                </select>
-              </div>
+                  {grade}
+                </button>
+              ))}
             </div>
           </div>
-        );
-
-      case 'ProfileStep':
-        return (
-          <div className="space-y-6">
-            <p className="text-slate-300">
-              Great! Now let's learn a bit more about your academic interests.
-            </p>
-            <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
-              <h4 className="text-white font-medium mb-2">Your Profile:</h4>
-              <div className="space-y-1 text-sm text-slate-300">
-                <div>Name: {userProfile.name}</div>
-                <div>Grade: {userProfile.grade}</div>
-                <div>Email: {userProfile.email}</div>
-              </div>
+        </div>
+      )
+    },
+    {
+      title: 'Interests & Passions',
+      icon: Heart,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              What subjects or fields interest you? (Select all that apply)
+            </label>
+            <div className="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto">
+              {interests.map(interest => (
+                <button
+                  key={interest}
+                  onClick={() => toggleArrayItem(
+                    formData.interests, 
+                    interest, 
+                    (items) => setFormData({ ...formData, interests: items })
+                  )}
+                  className={`p-3 rounded-lg border text-left transition-all text-sm ${
+                    formData.interests.includes(interest)
+                      ? 'bg-indigo-600 border-indigo-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  {interest}
+                </button>
+              ))}
             </div>
           </div>
-        );
-
-      case 'UniversitiesStep':
-        return (
-          <div className="space-y-6">
-            <p className="text-slate-300">
-              Search for universities you're interested in. This helps us suggest relevant courses and programs.
-            </p>
+        </div>
+      )
+    },
+    {
+      title: 'Academic Goals',
+      icon: Target,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              What are your main academic goals? (Select all that apply)
+            </label>
+            <div className="grid grid-cols-1 gap-3 max-h-80 overflow-y-auto">
+              {commonGoals.map(goal => (
+                <button
+                  key={goal}
+                  onClick={() => toggleArrayItem(
+                    formData.goals, 
+                    goal, 
+                    (items) => setFormData({ ...formData, goals: items })
+                  )}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    formData.goals.includes(goal)
+                      ? 'bg-indigo-600 border-indigo-500 text-white'
+                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  }`}
+                >
+                  {goal}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Target Universities',
+      icon: Building,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-4">
+              Which universities are you interested in?
+            </label>
+            <input
+              type="text"
+              value={universitySearch}
+              onChange={(e) => setUniversitySearch(e.target.value)}
+              placeholder="Search universities..."
+              className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+            />
             
-            <div>
-              <label className="block text-slate-300 font-medium mb-2">Search Universities</label>
-              <input
-                type="text"
-                onChange={(e) => searchUniversities(e.target.value)}
-                placeholder="Type university name (e.g., Stanford, Harvard, MIT)"
-                className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-            </div>
-
-            {loadingUniversities && (
-              <div className="text-center text-slate-400">Searching universities...</div>
-            )}
-
-            {universities.length > 0 && (
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                <h4 className="text-white font-medium">Search Results:</h4>
-                {universities.map((uni, index) => (
+            {isLoadingUniversities ? (
+              <div className="text-center text-slate-400 py-8">Loading universities...</div>
+            ) : (
+              <div className="max-h-80 overflow-y-auto space-y-2">
+                {filteredUniversities.slice(0, 50).map(university => (
                   <button
-                    key={index}
-                    onClick={() => addUniversity(uni.name)}
+                    key={university.name}
+                    onClick={() => toggleArrayItem(
+                      formData.targetUniversities, 
+                      university.name, 
+                      (items) => setFormData({ ...formData, targetUniversities: items })
+                    )}
                     className={`w-full p-3 rounded-lg border text-left transition-all ${
-                      userProfile.targetUniversities.includes(uni.name)
+                      formData.targetUniversities.includes(university.name)
                         ? 'bg-indigo-600 border-indigo-500 text-white'
-                        : 'bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-700/50'
+                        : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
                     }`}
                   >
-                    <div className="font-medium">{uni.name}</div>
-                    <div className="text-sm text-slate-400">{uni['state-province']}</div>
+                    <div className="font-medium">{university.name}</div>
+                    {university['state-province'] && (
+                      <div className="text-sm opacity-75">{university['state-province']}</div>
+                    )}
                   </button>
                 ))}
               </div>
             )}
-
-            {userProfile.targetUniversities.length > 0 && (
-              <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
-                <h4 className="text-white font-medium mb-2">Selected Universities:</h4>
-                <div className="space-y-1">
-                  {userProfile.targetUniversities.map(uni => (
-                    <div key={uni} className="text-sm text-slate-300 flex items-center justify-between">
-                      <span>• {uni}</span>
-                      <button
-                        onClick={() => addUniversity(uni)}
-                        className="text-red-400 hover:text-red-300 text-xs"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
-        );
-
-      case 'InterestsStep':
-        const interests = [
-          'Science & Research', 'Computer Science', 'Arts & Design', 
-          'Business & Finance', 'Law & Government', 'Medicine & Health',
-          'Environment & Sustainability', 'Engineering', 'Literature & Writing',
-          'International Relations', 'Theater & Performance', 'Media & Film'
-        ];
-        
-        return (
-          <div className="space-y-6">
-            <p className="text-slate-300">
-              Select areas that interest you. This helps us suggest relevant goals and opportunities.
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {interests.map(interest => (
-                <button
-                  key={interest}
-                  onClick={() => addInterest(interest)}
-                  className={`p-3 rounded-lg border text-left transition-all ${
-                    userProfile.interests.includes(interest)
-                      ? 'bg-indigo-600 border-indigo-500 text-white'
-                      : 'bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-700/50'
-                  }`}
-                >
-                  <span className="text-sm">{interest}</span>
-                </button>
-              ))}
-            </div>
-            <p className="text-slate-400 text-sm">
-              Selected: {userProfile.interests.length} interests
-            </p>
-          </div>
-        );
-
-      case 'FirstGoalsStep':
-        const suggestedGoals = [
-          { title: 'AP Computer Science', type: 'course', category: 'school', icon: 'CS' },
-          { title: 'Summer Research Program', type: 'summer', category: 'summer', icon: 'RS' },
-          { title: 'Student Government', type: 'extracurricular', category: 'extracurricular', icon: 'SG' },
-          { title: 'College Applications', type: 'career', category: 'career', icon: 'CA' },
-          { title: 'Varsity Soccer', type: 'sports', category: 'sports', icon: 'VS' },
-          { title: 'National Honor Society', type: 'extracurricular', category: 'extracurricular', icon: 'NHS' }
-        ];
-        
-        return (
-          <div className="space-y-6">
-            <p className="text-slate-300">
-              Choose a few goals to get started. You can always add more later!
-            </p>
-            <div className="grid grid-cols-1 gap-3">
-              {suggestedGoals.map(goal => (
-                <button
-                  key={goal.title}
-                  onClick={() => addFirstGoal(goal)}
-                  className={`p-4 rounded-lg border text-left transition-all ${
-                    userProfile.goals.includes(goal.title)
-                      ? 'bg-green-600/20 border-green-500 text-white'
-                      : 'bg-slate-700/30 border-slate-600 text-slate-300 hover:bg-slate-700/50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-slate-600 rounded flex items-center justify-center text-xs font-medium text-white">
-                      {goal.icon}
-                    </div>
-                    <div>
-                      <div className="font-medium">{goal.title}</div>
-                      <div className="text-sm text-slate-400 capitalize">{goal.type} • {goal.category}</div>
-                    </div>
-                    {userProfile.goals.includes(goal.title) && (
-                      <CheckCircle className="ml-auto text-green-400" size={20} />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-            <p className="text-slate-400 text-sm">
-              Selected: {userProfile.goals.length} goals
-            </p>
-          </div>
-        );
-
-      case 'CompleteStep':
-        return (
-          <div className="text-center space-y-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto">
-              <CheckCircle size={40} className="text-white" />
-            </div>
-            <div className="space-y-4">
-              <p className="text-xl text-slate-300">
-                Great job, {userProfile.name}! Your Waypoint account is ready.
-              </p>
-              <p className="text-slate-400">
-                You can now start planning your journey by dragging goals around the timeline, 
-                adding new ones, and tracking your progress.
-              </p>
-              <div className="bg-slate-700/30 p-4 rounded-lg border border-slate-600 text-left">
-                <h4 className="text-white font-medium mb-2">Your Profile Summary:</h4>
-                <div className="space-y-1 text-sm text-slate-300">
-                  <div>• Grade: {userProfile.grade}</div>
-                  <div>• Interests: {userProfile.interests.length} selected</div>
-                  <div>• Target Universities: {userProfile.targetUniversities.length} selected</div>
-                  <div>• Starting Goals: {userProfile.goals.length} selected</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
+        </div>
+      )
     }
-  };
+  ];
 
+  const currentStepData = steps[currentStep];
+  const isLastStep = currentStep === steps.length - 1;
   const canProceed = () => {
-    switch (steps[currentStep].content) {
-      case 'AccountStep':
-        return userProfile.name.trim() && userProfile.email.trim() && userProfile.grade;
-      case 'InterestsStep':
-        return userProfile.interests.length > 0;
-      case 'FirstGoalsStep':
-        return userProfile.goals.length > 0;
-      default:
-        return true;
+    switch (currentStep) {
+      case 0: return true;
+      case 1: return formData.name && formData.email;
+      case 2: return formData.grade;
+      case 3: return formData.interests.length > 0;
+      case 4: return formData.goals.length > 0;
+      case 5: return formData.targetUniversities.length > 0;
+      default: return false;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+      <div className="w-full max-w-2xl">
         {/* Progress Bar */}
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-slate-400 text-sm">Step {currentStep + 1} of {steps.length}</span>
-            <span className="text-slate-400 text-sm">{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-sm text-slate-400">
+              Step {currentStep + 1} of {steps.length}
+            </span>
+            <span className="text-sm text-slate-400">
+              {Math.round(((currentStep + 1) / steps.length) * 100)}% Complete
+            </span>
           </div>
           <div className="w-full bg-slate-700 rounded-full h-2">
             <div 
@@ -448,53 +344,51 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-8 shadow-2xl">
+        {/* Main Card */}
+        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 shadow-2xl">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">{steps[currentStep].title}</h1>
-            <p className="text-slate-400 text-lg">{steps[currentStep].subtitle}</p>
+            <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <currentStepData.icon size={24} className="text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-2">{currentStepData.title}</h1>
           </div>
 
-          {/* Step Content */}
-          <div className="mb-8 min-h-[300px]">
-            {renderStepContent()}
+          {/* Content */}
+          <div className="mb-8">
+            {currentStepData.content}
           </div>
 
           {/* Navigation */}
           <div className="flex justify-between items-center">
-            <button
+            <Button
               onClick={handlePrev}
               disabled={currentStep === 0}
-              className="flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-lg font-medium transition-colors disabled:cursor-not-allowed"
+              variant="outline"
+              className="flex items-center gap-2"
             >
-              <ArrowLeft size={18} />
+              <ChevronLeft size={16} />
               Previous
-            </button>
+            </Button>
 
-            <div className="flex gap-2">
-              {steps.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    index === currentStep
-                      ? 'bg-indigo-500'
-                      : index < currentStep
-                      ? 'bg-green-500'
-                      : 'bg-slate-600'
-                  }`}
-                />
-              ))}
-            </div>
-
-            <button
-              onClick={handleNext}
-              disabled={!canProceed()}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-500 text-white rounded-lg font-medium transition-all duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:scale-100"
-            >
-              {currentStep === steps.length - 1 ? 'Complete Setup' : 'Next'}
-              <ArrowRight size={18} />
-            </button>
+            {isLastStep ? (
+              <Button
+                onClick={handleFinish}
+                disabled={!canProceed()}
+                className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500"
+              >
+                Complete Setup
+              </Button>
+            ) : (
+              <Button
+                onClick={handleNext}
+                disabled={!canProceed()}
+                className="flex items-center gap-2"
+              >
+                Next
+                <ChevronRight size={16} />
+              </Button>
+            )}
           </div>
         </div>
       </div>
