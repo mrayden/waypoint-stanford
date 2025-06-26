@@ -59,10 +59,13 @@ const WaypointPlanner = () => {
         <PlanningGrid />
         
         {/* Floating Action Button */}
-        <div className="fixed bottom-8 right-8 z-10">
+        <div className="fixed bottom-6 right-6 z-10">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="group relative bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 shadow-lg hover:shadow-xl rounded-xl px-6 py-3 font-medium transition-all duration-200 hover:scale-105"
+            className="group relative bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 border border-gray-200 shadow-lg hover:shadow-xl rounded-2xl px-5 py-3 font-medium transition-all duration-200 hover:scale-105"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E")`,
+            }}
           >
             <div className="flex items-center gap-2">
               <Plus size={18} className="group-hover:rotate-90 transition-transform duration-200" />
@@ -75,18 +78,32 @@ const WaypointPlanner = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 relative">
+      {/* Grainy texture overlay */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.015'/%3E%3C/svg%3E")`,
+        }}
+      />
+      
       <DndContext 
         onDragStart={handleDragStart} 
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/60 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-6 py-4">
+        <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/60 sticky top-0 z-40 relative">
+          <div 
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E")`,
+            }}
+          />
+          <div className="max-w-7xl mx-auto px-6 py-4 relative">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
                   <span className="text-white font-semibold text-sm">W</span>
                 </div>
                 <div>
@@ -96,10 +113,10 @@ const WaypointPlanner = () => {
               </div>
               
               {/* Tab Navigation */}
-              <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+              <div className="flex items-center gap-1 bg-gray-100/80 p-1 rounded-xl backdrop-blur-sm">
                 <button
                   onClick={() => setActiveTab('local')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     activeTab === 'local'
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
@@ -110,7 +127,7 @@ const WaypointPlanner = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab('marketplace')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     activeTab === 'marketplace'
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
@@ -125,14 +142,14 @@ const WaypointPlanner = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => resetOnboarding()}
-                  className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg transition-colors duration-200"
                 >
                   <Settings size={16} />
                   <span className="text-sm">Modify</span>
                 </button>
                 <button
                   onClick={handleReset}
-                  className="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                  className="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50/80 rounded-lg transition-colors duration-200"
                 >
                   <RotateCcw size={16} />
                   <span className="text-sm">Reset</span>
@@ -143,7 +160,7 @@ const WaypointPlanner = () => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1">
+        <main className="flex-1 relative">
           {renderContent()}
         </main>
         
