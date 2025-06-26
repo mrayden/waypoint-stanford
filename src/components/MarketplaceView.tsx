@@ -1,379 +1,426 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Search, Filter, Star, Clock, Users, Globe, Plus, ExternalLink, Trophy, BookOpen, Zap, MapPin, Building } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Search, Globe, Star, Users, Clock, ExternalLink, Plus, ArrowLeft, Filter, Sparkles, TrendingUp } from 'lucide-react';
 import AddGoalModal from './AddGoalModal';
 
 interface MarketplaceViewProps {
   onBackToLocal: () => void;
 }
 
+interface MarketplaceOpportunity {
+  id: string;
+  title: string;
+  organization: string;
+  type: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  timeCommitment: string;
+  participants: number;
+  rating: number;
+  description: string;
+  tags: string[];
+  applicationUrl?: string;
+  featured?: boolean;
+}
+
 const MarketplaceView = ({ onBackToLocal }: MarketplaceViewProps) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [isAddGoalModalOpen, setIsAddGoalModalOpen] = useState(false);
-  const [selectedOpportunity, setSelectedOpportunity] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOpportunity, setSelectedOpportunity] = useState<MarketplaceOpportunity | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
-  const categories = [
-    { id: 'all', name: 'All Categories', icon: Globe },
-    { id: 'academic', name: 'Academic', icon: BookOpen },
-    { id: 'summer', name: 'Summer Programs', icon: Zap },
-    { id: 'competitions', name: 'Competitions', icon: Trophy },
-    { id: 'internships', name: 'Internships', icon: Building },
-    { id: 'research', name: 'Research', icon: Star },
-  ];
-
-  const opportunities = [
+  const marketplaceOpportunities: MarketplaceOpportunity[] = [
     {
-      id: '1',
-      title: 'Stanford AI4ALL Summer Program',
-      organization: 'Stanford University',
-      category: 'summer',
-      type: 'Summer Program',
-      deadline: '2025-03-15',
-      duration: '6 weeks',
-      location: 'Stanford, CA',
-      difficulty: 'Intermediate',
-      description: 'AI summer program for underrepresented students in technology',
-      tags: ['AI', 'Machine Learning', 'Diversity'],
-      rating: 4.8,
-      participants: 450,
-      featured: true,
-      icon: '🤖'
-    },
-    {
-      id: '2',
-      title: 'Intel Science & Engineering Fair',
-      organization: 'Intel Corporation',
-      category: 'competitions',
-      type: 'Competition',
-      deadline: '2025-01-30',
-      duration: '1 week',
-      location: 'Various locations',
-      difficulty: 'Advanced',
-      description: 'International science and engineering competition for high school students',
-      tags: ['Science', 'Engineering', 'Research'],
-      rating: 4.9,
-      participants: 1200,
-      trending: true,
-      icon: '🔬'
-    },
-    {
-      id: '3',
-      title: 'AP Biology Course',
-      organization: 'College Board',
-      category: 'academic',
-      type: 'Course',
-      deadline: '2025-08-30',
-      duration: '1 year',
-      location: 'Your school',
-      difficulty: 'Advanced',
-      description: 'Advanced placement biology course covering molecular biology, genetics, and ecology',
-      tags: ['Biology', 'AP', 'Science'],
-      rating: 4.6,
-      participants: 2500,
-      icon: '🧬'
-    },
-    {
-      id: '4',
-      title: 'Google Summer Internship',
+      id: 'google-cssi',
+      title: 'Google Computer Science Summer Institute',
       organization: 'Google',
-      category: 'internships',
-      type: 'Internship',
-      deadline: '2025-02-01',
-      duration: '12 weeks',
-      location: 'Mountain View, CA',
-      difficulty: 'Advanced',
-      description: 'Software engineering internship at Google for college students',
-      tags: ['Software', 'Engineering', 'Tech'],
-      rating: 4.9,
-      participants: 180,
-      featured: true,
-      icon: '💻'
-    },
-    {
-      id: '5',
-      title: 'NASA USRP Research Program',
-      organization: 'NASA',
-      category: 'research',
-      type: 'Research',
-      deadline: '2025-03-01',
-      duration: '10 weeks',
-      location: 'Various NASA centers',
-      difficulty: 'Intermediate',
-      description: 'Undergraduate Student Research Program at NASA centers nationwide',
-      tags: ['Space', 'Research', 'STEM'],
-      rating: 4.7,
-      participants: 320,
-      trending: true,
-      icon: '🚀'
-    },
-    {
-      id: '6',
-      title: 'Harvard Summer School',
-      organization: 'Harvard University',
-      category: 'summer',
       type: 'Summer Program',
-      deadline: '2025-04-15',
-      duration: '8 weeks',
-      location: 'Cambridge, MA',
       difficulty: 'Intermediate',
-      description: 'College-level courses during summer at Harvard University',
-      tags: ['Liberal Arts', 'University', 'Academic'],
+      timeCommitment: '3 weeks',
+      participants: 1200,
       rating: 4.8,
-      participants: 890,
-      icon: '🎓'
+      description: 'Intensive computer science program for high school students interested in technology.',
+      tags: ['Computer Science', 'Technology', 'Programming'],
+      applicationUrl: 'https://buildyourfuture.withgoogle.com/programs/computer-science-summer-institute',
+      featured: true
+    },
+    {
+      id: 'mit-launch',
+      title: 'MIT Launch Entrepreneurship Program',
+      organization: 'MIT',
+      type: 'Summer Program',
+      difficulty: 'Advanced',
+      timeCommitment: '4 weeks',
+      participants: 800,
+      rating: 4.9,
+      description: 'Learn to start and run your own company with guidance from MIT faculty.',
+      tags: ['Entrepreneurship', 'Business', 'Innovation'],
+      applicationUrl: 'https://launch.mit.edu',
+      featured: true
+    },
+    {
+      id: 'nasa-usrp',
+      title: 'NASA Undergraduate Student Research Program',
+      organization: 'NASA',
+      type: 'Research Program',
+      difficulty: 'Advanced',
+      timeCommitment: '10 weeks',
+      participants: 500,
+      rating: 4.7,
+      description: 'Conduct research alongside NASA scientists and engineers.',
+      tags: ['Research', 'STEM', 'Space', 'Engineering'],
+      applicationUrl: 'https://intern.nasa.gov'
+    },
+    {
+      id: 'cdc-prep',
+      title: 'CDC Public Health Preparedness Program',
+      organization: 'CDC',
+      type: 'Internship',
+      difficulty: 'Intermediate',
+      timeCommitment: '8 weeks',
+      participants: 300,
+      rating: 4.6,
+      description: 'Gain experience in public health emergency preparedness and response.',
+      tags: ['Public Health', 'Medicine', 'Government'],
+      applicationUrl: 'https://www.cdc.gov/careers'
+    },
+    {
+      id: 'nih-sip',
+      title: 'NIH Summer Internship Program',
+      organization: 'National Institutes of Health',
+      type: 'Research Internship',
+      difficulty: 'Intermediate',
+      timeCommitment: '8-10 weeks',
+      participants: 1500,
+      rating: 4.5,
+      description: 'Conduct biomedical research in NIH laboratories.',
+      tags: ['Research', 'Medicine', 'Biology', 'Health'],
+      applicationUrl: 'https://www.training.nih.gov/programs/sip'
     }
   ];
 
-  const filteredOpportunities = opportunities.filter(opp => {
+  const filteredOpportunities = marketplaceOpportunities.filter(opp => {
     const matchesSearch = opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      opp.organization.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      opp.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       opp.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    const matchesCategory = selectedCategory === 'all' || opp.category === selectedCategory;
-    
-    return matchesSearch && matchesCategory;
+    const matchesFilter = selectedFilter === 'all' || 
+      opp.type.toLowerCase().includes(selectedFilter.toLowerCase()) ||
+      opp.difficulty.toLowerCase() === selectedFilter.toLowerCase();
+
+    return matchesSearch && matchesFilter;
   });
 
-  const featuredOpportunities = opportunities.filter(opp => opp.featured);
-  const trendingOpportunities = opportunities.filter(opp => opp.trending);
-
-  const handleAddToMyPlan = (opportunity: any) => {
-    setSelectedOpportunity(opportunity);
-    setIsAddGoalModalOpen(true);
-  };
+  const featuredOpportunities = filteredOpportunities.filter(opp => opp.featured);
+  const regularOpportunities = filteredOpportunities.filter(opp => !opp.featured);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Beginner': return 'text-green-600 bg-green-50';
-      case 'Intermediate': return 'text-yellow-600 bg-yellow-50';
-      case 'Advanced': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'Beginner': return 'bg-green-100 text-green-700 border-green-200';
+      case 'Intermediate': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'Advanced': return 'bg-red-100 text-red-700 border-red-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
-  const OpportunityCard = ({ opportunity }: { opportunity: any }) => (
-    <Card className="group hover:shadow-md transition-all duration-300 border border-gray-200 hover:border-gray-300 animate-fade-in bg-white">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="text-2xl flex-shrink-0">{opportunity.icon}</div>
-            <div className="min-w-0 flex-1">
-              <CardTitle className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
-                {opportunity.title}
-              </CardTitle>
-              <CardDescription className="text-sm text-gray-600 mt-1">
-                {opportunity.organization}
-              </CardDescription>
+  const getTypeColor = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'summer program': return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'internship': return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'research program': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
+  const OpportunityModal = ({ opportunity, onClose }: { opportunity: MarketplaceOpportunity; onClose: () => void }) => (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+      <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl">
+        <div className="flex justify-between items-start mb-6">
+          <div className="pr-4">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">{opportunity.title}</h3>
+            <p className="text-lg text-gray-600">{opportunity.organization}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+            <ExternalLink size={24} />
+          </button>
+        </div>
+
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <Clock size={18} className="text-gray-500" />
+              <div>
+                <div className="text-sm text-gray-500">Duration</div>
+                <div className="font-medium text-gray-900">{opportunity.timeCommitment}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <Users size={18} className="text-gray-500" />
+              <div>
+                <div className="text-sm text-gray-500">Participants</div>
+                <div className="font-medium text-gray-900">{opportunity.participants}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <Star size={18} className="text-gray-500" />
+              <div>
+                <div className="text-sm text-gray-500">Rating</div>
+                <div className="font-medium text-gray-900">{opportunity.rating}/5.0</div>
+              </div>
             </div>
           </div>
-          {(opportunity.featured || opportunity.trending) && (
-            <div className={`text-xs px-2 py-1 rounded-full font-medium ${
-              opportunity.featured 
-                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white' 
-                : 'bg-gradient-to-r from-orange-500 to-red-600 text-white'
-            }`}>
-              {opportunity.featured ? 'Featured' : 'Trending'}
-            </div>
-          )}
-        </div>
-      </CardHeader>
-      
-      <CardContent className="space-y-4 pt-0">
-        <p className="text-sm text-gray-600 line-clamp-2">
-          {opportunity.description}
-        </p>
-        
-        <div className="flex flex-wrap gap-2">
-          {opportunity.tags.slice(0, 3).map((tag: string) => (
-            <span key={tag} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-              {tag}
+
+          <div className="flex flex-wrap gap-2">
+            <span className={`px-3 py-1 text-sm rounded-full border ${getDifficultyColor(opportunity.difficulty)}`}>
+              {opportunity.difficulty}
             </span>
-          ))}
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4 text-xs text-gray-500">
-          <div className="flex items-center gap-1">
-            <Clock size={12} />
-            <span>{opportunity.duration}</span>
+            <span className={`px-3 py-1 text-sm rounded-full border ${getTypeColor(opportunity.type)}`}>
+              {opportunity.type}
+            </span>
           </div>
-          <div className="flex items-center gap-1">
-            <MapPin size={12} />
-            <span className="truncate">{opportunity.location}</span>
+
+          <div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-3">Description</h4>
+            <p className="text-gray-700 leading-relaxed">{opportunity.description}</p>
           </div>
-          <div className="flex items-center gap-1">
-            <Users size={12} />
-            <span>{opportunity.participants} participants</span>
+
+          <div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-3">Tags</h4>
+            <div className="flex flex-wrap gap-2">
+              {opportunity.tags.map((tag, index) => (
+                <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full border border-gray-200">
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <Star size={12} />
-            <span>{opportunity.rating}/5.0</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between pt-2">
-          <span className={`text-xs px-2 py-1 rounded-full font-medium ${getDifficultyColor(opportunity.difficulty)}`}>
-            {opportunity.difficulty}
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs h-8 px-3 hover:bg-gray-50"
+
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex-1 bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-xl font-semibold transition-colors shadow-sm"
             >
-              <ExternalLink size={12} className="mr-1" />
-              Learn More
-            </Button>
-            <Button
-              onClick={() => handleAddToMyPlan(opportunity)}
-              size="sm"
-              className="text-xs h-8 px-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-sm"
+              Add to My Plan
+            </button>
+            {opportunity.applicationUrl && (
+              <a
+                href={opportunity.applicationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition-colors shadow-sm text-center"
+              >
+                Apply Now
+              </a>
+            )}
+            <button
+              onClick={onClose}
+              className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-colors"
             >
-              <Plus size={12} className="mr-1" />
-              Add to Plan
-            </Button>
+              Close
+            </button>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 
   return (
-    <div className="h-full overflow-auto bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 relative">
+      {/* Grainy texture overlay */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.015'/%3E%3C/svg%3E")`,
+        }}
+      />
+
+      <div className="relative z-10">
         {/* Header */}
-        <div className="mb-8 animate-fade-in">
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              onClick={onBackToLocal}
-              variant="outline"
-              size="sm"
-              className="lg:hidden flex items-center gap-2"
-            >
-              <ArrowLeft size={16} />
-              Back to Planning
-            </Button>
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center shadow-md">
-                <Globe size={20} className="text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-pink-800 bg-clip-text text-transparent">
-                  Opportunities
-                </h2>
-                <p className="text-gray-600 font-medium">Discover programs, competitions, and experiences</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="text"
-                placeholder="Search opportunities..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-              />
-            </div>
-          </div>
-
-          {/* Category Filter */}
-          <div className="flex gap-2 overflow-x-auto pb-2 mb-6">
-            {categories.map((category) => {
-              const CategoryIcon = category.icon;
-              return (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-                    selectedCategory === category.id
-                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
-                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
-                  }`}
-                >
-                  <CategoryIcon size={16} />
-                  {category.name}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Featured Section */}
-        {featuredOpportunities.length > 0 && selectedCategory === 'all' && (
-          <div className="mb-8 animate-slide-in-right">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Star className="text-yellow-500" size={20} />
-              Featured Opportunities
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredOpportunities.map((opportunity) => (
-                <OpportunityCard key={opportunity.id} opportunity={opportunity} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Trending Section */}
-        {trendingOpportunities.length > 0 && selectedCategory === 'all' && (
-          <div className="mb-8 animate-slide-in-right" style={{ animationDelay: '200ms' }}>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Zap className="text-orange-500" size={20} />
-              Trending Now
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {trendingOpportunities.map((opportunity) => (
-                <OpportunityCard key={opportunity.id} opportunity={opportunity} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* All Opportunities */}
-        <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Filter size={20} />
-            {selectedCategory === 'all' ? 'All Opportunities' : `${categories.find(c => c.id === selectedCategory)?.name} Opportunities`}
-            <span className="text-sm text-gray-500 font-normal">({filteredOpportunities.length})</span>
-          </h3>
-          
-          {filteredOpportunities.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredOpportunities.map((opportunity, index) => (
-                <div key={opportunity.id} style={{ animationDelay: `${index * 100}ms` }}>
-                  <OpportunityCard opportunity={opportunity} />
+        <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/60 p-4 sm:p-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center gap-3 mb-6">
+              <button
+                onClick={onBackToLocal}
+                className="p-2 hover:bg-gray-100 rounded-xl transition-colors sm:hidden"
+              >
+                <ArrowLeft size={20} className="text-gray-600" />
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
+                  <Globe className="text-white" size={20} />
                 </div>
-              ))}
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Marketplace</h1>
+                  <p className="text-gray-600 text-sm">Discover national opportunities and competitive programs</p>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="text-gray-400 text-6xl mb-4">🔍</div>
-              <h4 className="text-lg font-medium text-gray-900 mb-2">No opportunities found</h4>
-              <p className="text-gray-600">Try adjusting your search or filters</p>
+            
+            {/* Search and Filters */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search opportunities..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+                />
+              </div>
+              
+              <div className="flex gap-2">
+                {['all', 'summer program', 'internship', 'research program', 'beginner', 'intermediate', 'advanced'].map(filter => (
+                  <button
+                    key={filter}
+                    onClick={() => setSelectedFilter(filter)}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
+                      selectedFilter === filter
+                        ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+          {/* Featured Section */}
+          {featuredOpportunities.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles size={20} className="text-yellow-500" />
+                <h2 className="text-xl font-bold text-gray-900">Featured Opportunities</h2>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {featuredOpportunities.map(opportunity => (
+                  <div
+                    key={opportunity.id}
+                    onClick={() => setSelectedOpportunity(opportunity)}
+                    className="relative p-6 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 rounded-2xl border border-blue-200/50 hover:border-blue-300/50 transition-all cursor-pointer group shadow-sm hover:shadow-md"
+                  >
+                    <div className="absolute top-4 right-4">
+                      <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full border border-yellow-200">
+                        <Sparkles size={12} />
+                        Featured
+                      </div>
+                    </div>
+                    
+                    <div className="pr-20">
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors">
+                        {opportunity.title}
+                      </h3>
+                      <p className="text-blue-600 font-medium mb-3">{opportunity.organization}</p>
+                      <p className="text-gray-700 text-sm mb-4 line-clamp-2">{opportunity.description}</p>
+                      
+                      <div className="flex items-center gap-4 text-xs text-gray-600 mb-4">
+                        <span className="flex items-center gap-1">
+                          <Clock size={12} />
+                          {opportunity.timeCommitment}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Star size={12} />
+                          {opportunity.rating}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users size={12} />
+                          {opportunity.participants}
+                        </span>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        <span className={`px-2 py-1 text-xs rounded-full border ${getDifficultyColor(opportunity.difficulty)}`}>
+                          {opportunity.difficulty}
+                        </span>
+                        <span className={`px-2 py-1 text-xs rounded-full border ${getTypeColor(opportunity.type)}`}>
+                          {opportunity.type}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All Opportunities */}
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-gray-900">All Opportunities</h2>
+            <p className="text-gray-600 text-sm">Browse through our collection of programs and internships</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {regularOpportunities.map(opportunity => (
+              <div
+                key={opportunity.id}
+                onClick={() => setSelectedOpportunity(opportunity)}
+                className="p-6 bg-white hover:bg-gray-50 rounded-2xl border border-gray-200 hover:border-gray-300 transition-all cursor-pointer group shadow-sm hover:shadow-md"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="text-lg font-bold text-gray-900 group-hover:text-blue-700 transition-colors pr-4">
+                    {opportunity.title}
+                  </h4>
+                  <ExternalLink size={16} className="text-gray-400 group-hover:text-gray-600 mt-1 flex-shrink-0" />
+                </div>
+                
+                <p className="text-gray-600 font-medium mb-3">{opportunity.organization}</p>
+                <p className="text-gray-700 text-sm mb-4 line-clamp-3">{opportunity.description}</p>
+                
+                <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                  <span className="flex items-center gap-1">
+                    <Clock size={12} />
+                    {opportunity.timeCommitment}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Star size={12} />
+                    {opportunity.rating}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users size={12} />
+                    {opportunity.participants}
+                  </span>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <span className={`px-2 py-1 text-xs rounded-full border ${getDifficultyColor(opportunity.difficulty)}`}>
+                    {opportunity.difficulty}
+                  </span>
+                  <span className={`px-2 py-1 text-xs rounded-full border ${getTypeColor(opportunity.type)}`}>
+                    {opportunity.type}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {filteredOpportunities.length === 0 && (
+            <div className="text-center py-16">
+              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Search size={24} className="text-gray-400" />
+              </div>
+              <p className="text-lg text-gray-600 mb-2">No opportunities found</p>
+              <p className="text-sm text-gray-500">Try adjusting your search terms or filters</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Add Goal Modal */}
+      {/* Modals */}
       <AddGoalModal 
-        isOpen={isAddGoalModalOpen} 
-        onClose={() => {
-          setIsAddGoalModalOpen(false);
-          setSelectedOpportunity(null);
-        }}
-        prefilledData={selectedOpportunity ? {
-          title: selectedOpportunity.title,
-          description: selectedOpportunity.description,
-          icon: selectedOpportunity.icon,
-          source: selectedOpportunity.organization
-        } : undefined}
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
       />
+
+      {selectedOpportunity && (
+        <OpportunityModal
+          opportunity={selectedOpportunity}
+          onClose={() => setSelectedOpportunity(null)}
+        />
+      )}
     </div>
   );
 };

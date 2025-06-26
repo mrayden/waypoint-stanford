@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
-import { Plus, Settings, RotateCcw, MapPin, Globe, User, ChevronDown, Sparkles } from 'lucide-react';
+import { Plus, Settings, RotateCcw, MapPin, Globe, User, ChevronDown } from 'lucide-react';
 import PlanningGrid from './PlanningGrid';
 import GoalCard from './GoalCard';
 import AddGoalModal from './AddGoalModal';
@@ -58,23 +58,22 @@ const WaypointPlanner = () => {
     }
     
     return (
-      <div className="flex-1 overflow-hidden relative">
+      <div className="flex-1 overflow-hidden">
         <PlanningGrid />
         
         {/* Floating Action Button */}
-        <div className="fixed bottom-8 right-8 z-10">
+        <div className="fixed bottom-6 right-6 z-10">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="group relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl rounded-lg px-6 py-4 font-semibold transition-all duration-300 hover:scale-105 animate-pulse hover:animate-none"
+            className="group relative bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 border border-gray-200 shadow-lg hover:shadow-xl rounded-2xl px-5 py-3 font-medium transition-all duration-200 hover:scale-105"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E")`,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E")`,
             }}
           >
             <div className="flex items-center gap-2">
-              <Plus size={20} className="group-hover:rotate-90 transition-all duration-200" />
-              <span className="hidden sm:inline">Add Goal</span>
+              <Plus size={18} className="group-hover:rotate-90 transition-transform duration-200" />
+              Add Goal
             </div>
-            <div className="absolute inset-0 bg-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           </button>
         </div>
       </div>
@@ -82,19 +81,12 @@ const WaypointPlanner = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-100/30 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-indigo-400/20 to-pink-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-purple-400/10 to-blue-600/10 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-      
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 relative">
       {/* Grainy texture overlay */}
       <div 
-        className="absolute inset-0 pointer-events-none opacity-30"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.025'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.015'/%3E%3C/svg%3E")`,
         }}
       />
       
@@ -104,36 +96,33 @@ const WaypointPlanner = () => {
         onDragCancel={handleDragCancel}
       >
         {/* Header */}
-        <header className="bg-white/90 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40 relative shadow-sm">
+        <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/60 sticky top-0 z-40 relative">
           <div 
-            className="absolute inset-0 bg-gradient-to-r from-blue-50/50 via-white/80 to-purple-50/50"
+            className="absolute inset-0"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E")`,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E")`,
             }}
           />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 relative">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-lg flex items-center justify-center shadow-md relative overflow-hidden">
-                  <div className="absolute inset-0 bg-white/10 animate-pulse"></div>
-                  <Sparkles className="text-white relative z-10" size={20} />
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
+                  <span className="text-white font-semibold text-sm">W</span>
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent tracking-tight">
-                    Waypoint
-                  </h1>
-                  <p className="text-sm text-gray-600 font-medium">Plan your academic journey</p>
+                  <h1 className="text-xl font-semibold text-gray-900 tracking-tight">Waypoint</h1>
+                  <p className="text-sm text-gray-500">Plan your academic journey</p>
                 </div>
               </div>
               
-              {/* Tab Navigation */}
-              <div className={`flex items-center gap-1 bg-white/80 backdrop-blur-sm p-1.5 rounded-lg shadow-sm border border-white/30 ${activeTab === 'marketplace' ? 'hidden sm:flex' : ''}`}>
+              {/* Tab Navigation - Hidden on mobile when in marketplace */}
+              <div className={`flex items-center gap-1 bg-gray-100/80 p-1 rounded-xl backdrop-blur-sm ${activeTab === 'marketplace' ? 'hidden sm:flex' : ''}`}>
                 <button
                   onClick={() => setActiveTab('local')}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     activeTab === 'local'
-                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md scale-105'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   <MapPin size={16} />
@@ -141,48 +130,46 @@ const WaypointPlanner = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab('marketplace')}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     activeTab === 'marketplace'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-md scale-105'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   <Globe size={16} />
-                  <span className="hidden sm:inline">Opportunities</span>
+                  <span className="hidden sm:inline">Marketplace</span>
                 </button>
               </div>
 
               {/* Account & Action Buttons */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                {/* Account Section */}
                 {userData && (
                   <div className="relative">
                     <button
                       onClick={() => setShowAccountMenu(!showAccountMenu)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:text-gray-900 bg-white/80 hover:bg-white backdrop-blur-sm rounded-lg transition-all duration-200 border border-white/30 shadow-sm hover:shadow-md group"
+                      className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg transition-colors duration-200"
                     >
-                      <div className="w-9 h-9 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm relative overflow-hidden">
-                        <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors duration-200"></div>
-                        <span className="text-white text-sm font-bold relative z-10">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-sm font-medium">
                           {userData.name ? userData.name.charAt(0).toUpperCase() : 'U'}
                         </span>
                       </div>
                       <div className="hidden sm:block text-left">
-                        <div className="text-sm font-semibold">{userData.name || 'User'}</div>
+                        <div className="text-sm font-medium">{userData.name || 'User'}</div>
                         <div className="text-xs text-gray-500">{userData.grade || 'Student'}</div>
                       </div>
-                      <ChevronDown size={14} className="hidden sm:block text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
+                      <ChevronDown size={14} className="hidden sm:block" />
                     </button>
 
                     {/* Account Dropdown */}
                     {showAccountMenu && (
-                      <div className="absolute right-0 top-full mt-3 w-72 bg-white/95 backdrop-blur-xl border border-white/30 rounded-lg shadow-xl py-3 z-50 animate-scale-in">
-                        <div className="px-5 py-3 border-b border-gray-100">
-                          <div className="font-semibold text-gray-900">{userData.name}</div>
-                          <div className="text-sm text-gray-600">{userData.email}</div>
-                          <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                            <span>{userData.grade}</span>
-                            <span>•</span>
-                            <span>GPA: {userData.gpa}</span>
+                      <div className="absolute right-0 top-full mt-2 w-64 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg py-2 z-50">
+                        <div className="px-4 py-2 border-b border-gray-100">
+                          <div className="font-medium text-gray-900">{userData.name}</div>
+                          <div className="text-sm text-gray-500">{userData.email}</div>
+                          <div className="text-xs text-gray-400 mt-1">
+                            {userData.grade} • GPA: {userData.gpa}
                           </div>
                         </div>
                         <button
@@ -190,9 +177,9 @@ const WaypointPlanner = () => {
                             resetOnboarding();
                             setShowAccountMenu(false);
                           }}
-                          className="w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center gap-3 transition-colors duration-200"
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                         >
-                          <Settings size={16} />
+                          <Settings size={14} />
                           Edit Profile
                         </button>
                         <button
@@ -200,9 +187,9 @@ const WaypointPlanner = () => {
                             handleReset();
                             setShowAccountMenu(false);
                           }}
-                          className="w-full text-left px-5 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors duration-200"
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                         >
-                          <RotateCcw size={16} />
+                          <RotateCcw size={14} />
                           Reset All Data
                         </button>
                       </div>
@@ -210,14 +197,17 @@ const WaypointPlanner = () => {
                   </div>
                 )}
 
+                {/* Mobile menu for when account is not visible */}
                 {!userData && (
-                  <button
-                    onClick={() => resetOnboarding()}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-lg transition-all duration-200 shadow-md hover:scale-105"
-                  >
-                    <Settings size={16} />
-                    <span className="hidden sm:inline text-sm font-semibold">Setup</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => resetOnboarding()}
+                      className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg transition-colors duration-200"
+                    >
+                      <Settings size={16} />
+                      <span className="hidden sm:inline text-sm">Setup</span>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -225,14 +215,14 @@ const WaypointPlanner = () => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 relative z-10">
+        <main className="flex-1 relative">
           {renderContent()}
         </main>
         
         {/* Drag Overlay */}
         <DragOverlay>
           {activeGoal && (
-            <div className="transform rotate-2 scale-110 animate-pulse">
+            <div className="transform rotate-2 scale-105">
               <GoalCard goal={activeGoal} isDragging />
             </div>
           )}
