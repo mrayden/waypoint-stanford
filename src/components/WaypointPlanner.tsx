@@ -1,22 +1,25 @@
 
 import React, { useState } from 'react';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
-import { Plus, Settings, RotateCcw, MapPin, Globe } from 'lucide-react';
+import { Plus, Settings, RotateCcw, MapPin, Globe, User, ChevronDown } from 'lucide-react';
 import PlanningGrid from './PlanningGrid';
 import GoalCard from './GoalCard';
 import AddGoalModal from './AddGoalModal';
 import MarketplaceView from './MarketplaceView';
 import { useGoalStore } from '../store/goalStore';
 import { useOnboarding } from '../hooks/useOnboarding';
-import { clearUserData } from '../utils/cookieUtils';
+import { clearUserData, getUserData } from '../utils/cookieUtils';
 import { Goal } from '../types/Goal';
 
 const WaypointPlanner = () => {
   const [activeGoal, setActiveGoal] = useState<Goal | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'local' | 'marketplace'>('local');
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
   const { moveGoal, resetGoals } = useGoalStore();
   const { resetOnboarding } = useOnboarding();
+
+  const userData = getUserData();
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -100,60 +103,112 @@ const WaypointPlanner = () => {
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E")`,
             }}
           />
-          <div className="max-w-7xl mx-auto px-6 py-4 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 relative">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
                   <span className="text-white font-semibold text-sm">W</span>
                 </div>
-                <div>
+                <div className="hidden sm:block">
                   <h1 className="text-xl font-semibold text-gray-900 tracking-tight">Waypoint</h1>
                   <p className="text-sm text-gray-500">Plan your academic journey</p>
                 </div>
               </div>
               
-              {/* Tab Navigation */}
-              <div className="flex items-center gap-1 bg-gray-100/80 p-1 rounded-xl backdrop-blur-sm">
+              {/* Tab Navigation - Hidden on mobile when in marketplace */}
+              <div className={`flex items-center gap-1 bg-gray-100/80 p-1 rounded-xl backdrop-blur-sm ${activeTab === 'marketplace' ? 'hidden sm:flex' : ''}`}>
                 <button
                   onClick={() => setActiveTab('local')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     activeTab === 'local'
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   <MapPin size={16} />
-                  Local Planning
+                  <span className="hidden sm:inline">Local Planning</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('marketplace')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     activeTab === 'marketplace'
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   <Globe size={16} />
-                  Marketplace
+                  <span className="hidden sm:inline">Marketplace</span>
                 </button>
               </div>
 
-              {/* Action Buttons */}
+              {/* Account & Action Buttons */}
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => resetOnboarding()}
-                  className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg transition-colors duration-200"
-                >
-                  <Settings size={16} />
-                  <span className="text-sm">Modify</span>
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50/80 rounded-lg transition-colors duration-200"
-                >
-                  <RotateCcw size={16} />
-                  <span className="text-sm">Reset</span>
-                </button>
+                {/* Account Section */}
+                {userData && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowAccountMenu(!showAccountMenu)}
+                      className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg transition-colors duration-200"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-sm font-medium">
+                          {userData.name ? userData.name.charAt(0).toUpperCase() : 'U'}
+                        </span>
+                      </div>
+                      <div className="hidden sm:block text-left">
+                        <div className="text-sm font-medium">{userData.name || 'User'}</div>
+                        <div className="text-xs text-gray-500">{userData.grade || 'Student'}</div>
+                      </div>
+                      <ChevronDown size={14} className="hidden sm:block" />
+                    </button>
+
+                    {/* Account Dropdown */}
+                    {showAccountMenu && (
+                      <div className="absolute right-0 top-full mt-2 w-64 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg py-2 z-50">
+                        <div className="px-4 py-2 border-b border-gray-100">
+                          <div className="font-medium text-gray-900">{userData.name}</div>
+                          <div className="text-sm text-gray-500">{userData.email}</div>
+                          <div className="text-xs text-gray-400 mt-1">
+                            {userData.grade} • GPA: {userData.gpa}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            resetOnboarding();
+                            setShowAccountMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Settings size={14} />
+                          Edit Profile
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleReset();
+                            setShowAccountMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        >
+                          <RotateCcw size={14} />
+                          Reset All Data
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Mobile menu for when account is not visible */}
+                {!userData && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => resetOnboarding()}
+                      className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg transition-colors duration-200"
+                    >
+                      <Settings size={16} />
+                      <span className="hidden sm:inline text-sm">Setup</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -179,6 +234,14 @@ const WaypointPlanner = () => {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
       />
+
+      {/* Click outside to close account menu */}
+      {showAccountMenu && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setShowAccountMenu(false)}
+        />
+      )}
     </div>
   );
 };

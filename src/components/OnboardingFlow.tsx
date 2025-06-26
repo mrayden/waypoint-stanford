@@ -344,6 +344,8 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       goals: formData.goals,
       targetUniversities: formData.targetUniversities,
       targetDegrees: formData.targetDegrees,
+      extracurriculars: formData.extracurriculars,
+      summerPlans: formData.summerPlans,
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
     });
@@ -410,6 +412,49 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       )
     },
     {
+      title: 'Academic Information',
+      icon: School,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Current Grade Level
+            </label>
+            <Select value={formData.grade} onValueChange={(value) => setFormData({ ...formData, grade: value })}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select your grade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="9th">9th Grade (Freshman)</SelectItem>
+                <SelectItem value="10th">10th Grade (Sophomore)</SelectItem>
+                <SelectItem value="11th">11th Grade (Junior)</SelectItem>
+                <SelectItem value="12th">12th Grade (Senior)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Current GPA (approximate)
+            </label>
+            <Select value={formData.gpa} onValueChange={(value) => setFormData({ ...formData, gpa: value })}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select GPA range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="4.0+">4.0+</SelectItem>
+                <SelectItem value="3.5-3.9">3.5-3.9</SelectItem>
+                <SelectItem value="3.0-3.4">3.0-3.4</SelectItem>
+                <SelectItem value="2.5-2.9">2.5-2.9</SelectItem>
+                <SelectItem value="2.0-2.4">2.0-2.4</SelectItem>
+                <SelectItem value="Below 2.0">Below 2.0</SelectItem>
+                <SelectItem value="Not sure">Not sure</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )
+    },
+    {
       title: 'Location & Eligibility',
       icon: MapPin,
       content: (
@@ -442,14 +487,39 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                 <div className="text-sm opacity-75">Limited features - US-focused planning only</div>
               </button>
             </div>
-            {formData.location === 'International' && (
-              <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <p className="text-orange-800 text-sm">
-                  Note: Waypoint is currently optimized for US-based students. While you can still use the platform, 
-                  some features like local high school data and specific financial aid information may not be applicable.
-                </p>
-              </div>
-            )}
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Interests & Goals',
+      icon: Target,
+      content: (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-4">
+              What are your main academic interests? (Select all that apply)
+            </label>
+            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+              {['Computer Science', 'Engineering', 'Medicine', 'Business', 'Arts & Design', 'Mathematics', 'Sciences', 'Literature', 'History', 'Psychology'].map(interest => (
+                <button
+                  key={interest}
+                  onClick={() => {
+                    const newInterests = formData.interests.includes(interest)
+                      ? formData.interests.filter(i => i !== interest)
+                      : [...formData.interests, interest];
+                    setFormData({ ...formData, interests: newInterests });
+                  }}
+                  className={`p-2 text-sm rounded-lg border transition-all ${
+                    formData.interests.includes(interest)
+                      ? 'bg-blue-50 border-blue-200 text-blue-900'
+                      : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {interest}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )
@@ -458,15 +528,61 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
   const currentStepData = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
-  const canClose = currentStep >= 3; // Can close after first 3 slides
+  const canClose = currentStep >= 4; // Can close after first 5 slides
 
   const canProceed = () => {
     switch (currentStep) {
       case 0: return true;
       case 1: return formData.name && formData.email;
-      case 2: return formData.location;
+      case 2: return formData.grade && formData.gpa;
+      case 3: return formData.location;
+      case 4: return formData.interests.length > 0;
       default: return true;
     }
+  };
+
+  const handleFinish = () => {
+    saveUserData({
+      name: formData.name,
+      email: formData.email,
+      grade: formData.grade,
+      location: formData.location,
+      selectedState: formData.selectedState,
+      currentSchool: formData.currentSchool,
+      schoolType: formData.schoolType,
+      gpa: formData.gpa,
+      weightedGpa: formData.weightedGpa,
+      apCourses: formData.apCourses,
+      ibCourses: formData.ibCourses,
+      regularCourses: formData.regularCourses,
+      collegePrepCourses: formData.collegePrepCourses,
+      plannedCourses: formData.plannedCourses,
+      financialSituation: formData.financialSituation,
+      interests: formData.interests,
+      goals: formData.goals,
+      targetUniversities: formData.targetUniversities,
+      targetDegrees: formData.targetDegrees,
+      extracurriculars: formData.extracurriculars,
+      summerPlans: formData.summerPlans,
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+    });
+    onComplete();
+  };
+
+  const handleSkipRest = () => {
+    // Save current data and complete onboarding
+    saveUserData({
+      name: formData.name,
+      email: formData.email,
+      grade: formData.grade,
+      location: formData.location,
+      gpa: formData.gpa,
+      interests: formData.interests,
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+    });
+    onComplete();
   };
 
   if (!showOnboarding) {
@@ -477,14 +593,14 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     <div className="fixed inset-0 z-50">
       {/* Blurred Dashboard Background */}
       <div className="absolute inset-0">
-        <div className="blur-md">
+        <div className="blur-md scale-105">
           <WaypointPlanner />
         </div>
         {/* Grainy gradient overlay */}
         <div 
-          className="absolute inset-0 bg-gradient-to-br from-white/80 via-gray-50/70 to-blue-50/60"
+          className="absolute inset-0 bg-gradient-to-br from-white/85 via-gray-50/75 to-blue-50/70"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E")`,
           }}
         />
       </div>
@@ -494,7 +610,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         <div className="w-full max-w-lg">
           {/* Main Card */}
           <div className="bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-2xl shadow-black/10 overflow-hidden">
-            {/* Close Button (after first 3 slides) */}
+            {/* Close Button (after first 5 slides) */}
             {canClose && (
               <button
                 onClick={() => setShowOnboarding(false)}
@@ -540,7 +656,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               {/* Navigation */}
               <div className="flex justify-between items-center">
                 <Button
-                  onClick={handlePrev}
+                  onClick={() => setCurrentStep(currentStep - 1)}
                   disabled={currentStep === 0}
                   variant="outline"
                   size="sm"
@@ -551,6 +667,19 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                 </Button>
 
                 <div className="flex gap-2">
+                  {/* Skip button appears after step 4 (index 4) */}
+                  {currentStep >= 4 && !isLastStep && (
+                    <Button
+                      onClick={handleSkipRest}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 text-gray-600"
+                    >
+                      <SkipForward size={14} />
+                      Skip & Start
+                    </Button>
+                  )}
+                  
                   {isLastStep ? (
                     <Button
                       onClick={handleFinish}
@@ -562,7 +691,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                     </Button>
                   ) : (
                     <Button
-                      onClick={handleNext}
+                      onClick={() => setCurrentStep(currentStep + 1)}
                       disabled={!canProceed()}
                       size="sm"
                       className="flex items-center gap-2"
