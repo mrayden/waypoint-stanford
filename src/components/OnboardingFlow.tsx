@@ -333,12 +333,12 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       currentSchool: formData.currentSchool,
       schoolType: formData.schoolType,
       gpa: formData.gpa,
+      weightedGpa: formData.weightedGpa,
       apCourses: formData.apCourses,
       ibCourses: formData.ibCourses,
       regularCourses: formData.regularCourses,
       collegePrepCourses: formData.collegePrepCourses,
-      extracurriculars: formData.extracurriculars,
-      summerPlans: formData.summerPlans,
+      plannedCourses: formData.plannedCourses,
       financialSituation: formData.financialSituation,
       interests: formData.interests,
       goals: formData.goals,
@@ -541,7 +541,8 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     }
   };
 
-  const handleFinish = () => {
+  const handleSkipRest = () => {
+    // Save current data and complete onboarding
     saveUserData({
       name: formData.name,
       email: formData.email,
@@ -564,21 +565,6 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       targetDegrees: formData.targetDegrees,
       extracurriculars: formData.extracurriculars,
       summerPlans: formData.summerPlans,
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-    });
-    onComplete();
-  };
-
-  const handleSkipRest = () => {
-    // Save current data and complete onboarding
-    saveUserData({
-      name: formData.name,
-      email: formData.email,
-      grade: formData.grade,
-      location: formData.location,
-      gpa: formData.gpa,
-      interests: formData.interests,
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
     });
