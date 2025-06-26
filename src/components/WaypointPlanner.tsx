@@ -65,7 +65,7 @@ const WaypointPlanner = () => {
         <div className="fixed bottom-8 right-8 z-10">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="group relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white shadow-2xl hover:shadow-purple-500/25 rounded-2xl px-6 py-4 font-semibold transition-all duration-300 hover:scale-105 animate-pulse hover:animate-none"
+            className="group relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl rounded-lg px-6 py-4 font-semibold transition-all duration-300 hover:scale-105 animate-pulse hover:animate-none"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E")`,
             }}
@@ -74,7 +74,7 @@ const WaypointPlanner = () => {
               <Plus size={20} className="group-hover:rotate-90 transition-all duration-200" />
               <span className="hidden sm:inline">Add Goal</span>
             </div>
-            <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+            <div className="absolute inset-0 bg-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           </button>
         </div>
       </div>
@@ -104,7 +104,7 @@ const WaypointPlanner = () => {
         onDragCancel={handleDragCancel}
       >
         {/* Header */}
-        <header className="bg-white/90 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40 relative shadow-lg shadow-blue-500/5">
+        <header className="bg-white/90 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40 relative shadow-sm">
           <div 
             className="absolute inset-0 bg-gradient-to-r from-blue-50/50 via-white/80 to-purple-50/50"
             style={{
@@ -114,7 +114,7 @@ const WaypointPlanner = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 relative">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25 relative overflow-hidden">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-lg flex items-center justify-center shadow-md relative overflow-hidden">
                   <div className="absolute inset-0 bg-white/10 animate-pulse"></div>
                   <Sparkles className="text-white relative z-10" size={20} />
                 </div>
@@ -127,12 +127,12 @@ const WaypointPlanner = () => {
               </div>
               
               {/* Tab Navigation */}
-              <div className={`flex items-center gap-1 bg-white/80 backdrop-blur-sm p-1.5 rounded-2xl shadow-lg border border-white/30 ${activeTab === 'marketplace' ? 'hidden sm:flex' : ''}`}>
+              <div className={`flex items-center gap-1 bg-white/80 backdrop-blur-sm p-1.5 rounded-lg shadow-sm border border-white/30 ${activeTab === 'marketplace' ? 'hidden sm:flex' : ''}`}>
                 <button
                   onClick={() => setActiveTab('local')}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-300 ${
                     activeTab === 'local'
-                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25 scale-105'
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md scale-105'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
                   }`}
                 >
@@ -141,9 +141,9 @@ const WaypointPlanner = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab('marketplace')}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-300 ${
                     activeTab === 'marketplace'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/25 scale-105'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-md scale-105'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
                   }`}
                 >
@@ -158,9 +158,9 @@ const WaypointPlanner = () => {
                   <div className="relative">
                     <button
                       onClick={() => setShowAccountMenu(!showAccountMenu)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:text-gray-900 bg-white/80 hover:bg-white backdrop-blur-sm rounded-2xl transition-all duration-200 border border-white/30 shadow-sm hover:shadow-md group"
+                      className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:text-gray-900 bg-white/80 hover:bg-white backdrop-blur-sm rounded-lg transition-all duration-200 border border-white/30 shadow-sm hover:shadow-md group"
                     >
-                      <div className="w-9 h-9 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md relative overflow-hidden">
+                      <div className="w-9 h-9 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm relative overflow-hidden">
                         <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors duration-200"></div>
                         <span className="text-white text-sm font-bold relative z-10">
                           {userData.name ? userData.name.charAt(0).toUpperCase() : 'U'}
@@ -175,7 +175,7 @@ const WaypointPlanner = () => {
 
                     {/* Account Dropdown */}
                     {showAccountMenu && (
-                      <div className="absolute right-0 top-full mt-3 w-72 bg-white/95 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl py-3 z-50 animate-scale-in">
+                      <div className="absolute right-0 top-full mt-3 w-72 bg-white/95 backdrop-blur-xl border border-white/30 rounded-lg shadow-xl py-3 z-50 animate-scale-in">
                         <div className="px-5 py-3 border-b border-gray-100">
                           <div className="font-semibold text-gray-900">{userData.name}</div>
                           <div className="text-sm text-gray-600">{userData.email}</div>
@@ -213,7 +213,7 @@ const WaypointPlanner = () => {
                 {!userData && (
                   <button
                     onClick={() => resetOnboarding()}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/25 hover:scale-105"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-lg transition-all duration-200 shadow-md hover:scale-105"
                   >
                     <Settings size={16} />
                     <span className="hidden sm:inline text-sm font-semibold">Setup</span>

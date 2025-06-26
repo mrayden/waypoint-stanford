@@ -42,7 +42,7 @@ const PlanningGrid = () => {
         {/* Header */}
         <div className="mb-8 lg:mb-10 animate-fade-in">
           <div className="flex items-center gap-4 mb-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
               <Calendar size={20} className="text-white" />
             </div>
             <div>
@@ -59,7 +59,7 @@ const PlanningGrid = () => {
           {semesters.map((semester, index) => (
             <div key={semester.id} className="space-y-6" style={{ animationDelay: `${index * 100}ms` }}>
               {/* Semester Header */}
-              <div className="bg-gradient-to-r from-white/90 via-white/95 to-white/90 backdrop-blur-sm border border-white/30 rounded-2xl p-6 shadow-lg animate-scale-in">
+              <div className="bg-gradient-to-r from-white/90 via-white/95 to-white/90 backdrop-blur-sm border border-white/30 rounded-lg p-6 shadow-sm animate-scale-in">
                 <div className="text-center">
                   <div className="text-xl font-bold text-gray-900 mb-1">{semester.name}</div>
                   <div className="text-sm text-gray-600 font-medium">{semester.season} {semester.year}</div>
@@ -74,7 +74,7 @@ const PlanningGrid = () => {
                 return (
                   <div key={`${category.id}-${semester.id}`} className="space-y-3" style={{ animationDelay: `${(index * categories.length + catIndex) * 50}ms` }}>
                     <div className="flex items-center gap-3 px-2">
-                      <div className={`w-8 h-8 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center shadow-md`}>
+                      <div className={`w-8 h-8 bg-gradient-to-br ${gradient} rounded-lg flex items-center justify-center shadow-sm`}>
                         <CategoryIcon size={16} className="text-white" />
                       </div>
                       <span className="text-base font-semibold text-gray-800">{category.name}</span>
@@ -100,11 +100,11 @@ const PlanningGrid = () => {
             <div className="min-w-max">
               {/* Header Row */}
               <div className="grid gap-6 mb-8" style={{ gridTemplateColumns: `320px repeat(${semesters.length}, 280px)` }}>
-                <div className="text-lg font-bold text-gray-700 flex items-center px-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl py-4">
+                <div className="text-lg font-bold text-gray-700 flex items-center px-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg py-4">
                   Categories
                 </div>
                 {semesters.map((semester, index) => (
-                  <div key={semester.id} className="bg-gradient-to-r from-white/90 via-white/95 to-white/90 backdrop-blur-sm border border-white/30 rounded-2xl p-6 shadow-lg animate-scale-in" style={{ animationDelay: `${index * 100}ms` }}>
+                  <div key={semester.id} className="bg-gradient-to-r from-white/90 via-white/95 to-white/90 backdrop-blur-sm border border-white/30 rounded-lg p-6 shadow-sm animate-scale-in" style={{ animationDelay: `${index * 100}ms` }}>
                     <div className="text-center">
                       <div className="text-lg font-bold text-gray-900 mb-1">{semester.name}</div>
                       <div className="text-sm text-gray-600 font-medium">{semester.season} {semester.year}</div>
@@ -124,9 +124,9 @@ const PlanningGrid = () => {
                     animationDelay: `${index * 150}ms`
                   }}>
                     {/* Category Header */}
-                    <div className="bg-gradient-to-r from-white/90 via-white/95 to-white/90 backdrop-blur-sm border border-white/30 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div className="bg-gradient-to-r from-white/90 via-white/95 to-white/90 backdrop-blur-sm border border-white/30 rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300">
                       <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 bg-gradient-to-br ${gradient} rounded-2xl flex items-center justify-center shadow-lg`}>
+                        <div className={`w-10 h-10 bg-gradient-to-br ${gradient} rounded-lg flex items-center justify-center shadow-sm`}>
                           <CategoryIcon size={20} className="text-white" />
                         </div>
                         <div>
@@ -187,11 +187,11 @@ const DropCell = ({ id, goals, categoryId, style }: DropCellProps) => {
       ref={setNodeRef}
       style={style}
       className={`
-        bg-gradient-to-br ${gradient} border-2 border-dashed rounded-2xl p-4 min-h-[140px] lg:min-h-[200px] 
-        transition-all duration-300 hover:shadow-lg group animate-scale-in
+        bg-gradient-to-br ${gradient} border-2 border-dashed rounded-lg p-4 min-h-[140px] lg:min-h-[200px] 
+        transition-all duration-300 hover:shadow-md group animate-scale-in
         ${isOver 
-          ? 'border-blue-400 bg-gradient-to-br from-blue-100 to-indigo-100 shadow-xl shadow-blue-500/25 scale-105' 
-          : 'hover:border-opacity-60 hover:shadow-md'
+          ? 'border-blue-400 bg-gradient-to-br from-blue-100 to-indigo-100 shadow-lg shadow-blue-500/15 scale-105' 
+          : 'hover:border-opacity-60 hover:shadow-sm'
         }
       `}
     >
