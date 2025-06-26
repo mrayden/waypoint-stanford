@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { Goal } from '../types/Goal';
-import { Move, Edit, Trash2, MoreVertical } from 'lucide-react';
+import { Move, Edit, Trash2 } from 'lucide-react';
 import { useGoalStore } from '../store/goalStore';
 import {
   ContextMenu,
@@ -35,21 +35,22 @@ const GoalCard = ({ goal, isDragging = false }: GoalCardProps) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-50 border-green-200 text-green-800';
-      case 'in-progress': return 'bg-yellow-50 border-yellow-200 text-yellow-800';
-      default: return 'bg-gray-50 border-gray-200 text-gray-800';
+      case 'completed': return 'from-green-500 to-emerald-600';
+      case 'in-progress': return 'from-yellow-500 to-orange-600';
+      default: return 'from-slate-600 to-slate-700';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return '✓';
-      case 'in-progress': return '○';
-      default: return '○';
+      case 'completed': return '✅';
+      case 'in-progress': return '🔄';
+      default: return '📅';
     }
   };
 
   const handleEdit = () => {
+    // TODO: Implement edit functionality
     console.log('Edit goal:', goal.id);
   };
 
@@ -69,44 +70,41 @@ const GoalCard = ({ goal, isDragging = false }: GoalCardProps) => {
           ref={setNodeRef}
           style={style}
           className={`
-            group cursor-grab active:cursor-grabbing
+            relative group cursor-grab active:cursor-grabbing
             ${isDragging ? 'opacity-50' : ''}
           `}
           {...listeners}
           {...attributes}
         >
           <div className={`
-            bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-all duration-200
-            hover:border-gray-300 group-hover:scale-[1.02]
-            ${isDragging ? 'shadow-lg' : ''}
+            p-3 rounded-lg shadow-lg border border-slate-600 transition-all duration-200
+            bg-gradient-to-br ${getStatusColor(goal.status)}
+            hover:ring-2 hover:ring-indigo-400 hover:ring-opacity-50
+            hover:scale-105 hover:shadow-xl
+            ${isDragging ? 'shadow-2xl ring-2 ring-indigo-400' : ''}
           `}>
-            {/* Header */}
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <span className="text-sm">{goal.icon}</span>
-                <h3 className="text-sm font-medium text-gray-900 truncate">
+            {/* Status indicator */}
+            <div className="absolute -top-1 -right-1 text-xs">
+              {getStatusIcon(goal.status)}
+            </div>
+
+            {/* Main content */}
+            <div className="flex items-start gap-2 mb-2">
+              <span className="text-lg">{goal.icon}</span>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-white font-semibold text-sm leading-tight truncate">
                   {goal.title}
                 </h3>
-              </div>
-              <div className="flex items-center gap-1 ml-2">
-                <div className={`
-                  w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium
-                  ${getStatusColor(goal.status)}
-                `}>
-                  {getStatusIcon(goal.status)}
-                </div>
-                <MoreVertical size={14} className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                {goal.source && (
+                  <p className="text-slate-300 text-xs mt-1 opacity-75">
+                    {goal.source}
+                  </p>
+                )}
               </div>
             </div>
 
-            {goal.source && (
-              <p className="text-xs text-gray-500 mb-2">
-                {goal.source}
-              </p>
-            )}
-
             {goal.description && (
-              <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
+              <p className="text-slate-200 text-xs leading-relaxed mb-2 line-clamp-2">
                 {goal.description}
               </p>
             )}
@@ -114,10 +112,10 @@ const GoalCard = ({ goal, isDragging = false }: GoalCardProps) => {
         </div>
       </ContextMenuTrigger>
       
-      <ContextMenuContent className="w-48 bg-white border border-gray-200 shadow-lg rounded-lg">
+      <ContextMenuContent className="w-56 bg-slate-800 border-slate-700">
         <ContextMenuItem 
           onClick={() => setShowMoveOptions(!showMoveOptions)}
-          className="text-gray-700 hover:bg-gray-50 cursor-pointer"
+          className="text-slate-200 hover:bg-slate-700 cursor-pointer"
         >
           <Move className="mr-2 h-4 w-4" />
           Move to...
@@ -130,7 +128,7 @@ const GoalCard = ({ goal, isDragging = false }: GoalCardProps) => {
                 <ContextMenuItem
                   key={`${category.id}-${semester.id}`}
                   onClick={() => handleMove(category.id, semester.id)}
-                  className="text-gray-600 hover:bg-gray-50 cursor-pointer text-xs"
+                  className="text-slate-300 hover:bg-slate-700 cursor-pointer text-xs"
                 >
                   {category.name} - {semester.name}
                 </ContextMenuItem>
@@ -141,7 +139,7 @@ const GoalCard = ({ goal, isDragging = false }: GoalCardProps) => {
         
         <ContextMenuItem 
           onClick={handleEdit}
-          className="text-gray-700 hover:bg-gray-50 cursor-pointer"
+          className="text-slate-200 hover:bg-slate-700 cursor-pointer"
         >
           <Edit className="mr-2 h-4 w-4" />
           Edit
@@ -149,7 +147,7 @@ const GoalCard = ({ goal, isDragging = false }: GoalCardProps) => {
         
         <ContextMenuItem 
           onClick={handleDelete}
-          className="text-red-600 hover:bg-red-50 cursor-pointer"
+          className="text-red-400 hover:bg-red-900/20 cursor-pointer"
         >
           <Trash2 className="mr-2 h-4 w-4" />
           Delete
