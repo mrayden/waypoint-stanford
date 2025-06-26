@@ -1,30 +1,27 @@
 
 import React, { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { Goal } from '../types/Goal';
-import { Move, Edit, Trash2, MoreHorizontal } from 'lucide-react';
-import { useGoalStore } from '../store/goalStore';
+import { MoreVertical, Calendar, Target, Clock, CheckCircle } from 'lucide-react';
+import { Card } from './ui/card';
+import { Button } from './ui/button';
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from './ui/context-menu';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { useGoalStore } from '../store/goalStore';
 
-interface GoalCardProps {
-  goal: Goal;
-  isDragging?: boolean;
-}
-
-const GoalCard = ({ goal, isDragging = false }: GoalCardProps) => {
-  const { removeGoal, categories, semesters, moveGoal } = useGoalStore();
-  const [showMoveOptions, setShowMoveOptions] = useState(false);
+const GoalCard = ({ goal }: { goal: any }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const { updateGoal, deleteGoal } = useGoalStore();
 
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
+    isDragging,
   } = useDraggable({
     id: goal.id,
   });
@@ -33,128 +30,111 @@ const GoalCard = ({ goal, isDragging = false }: GoalCardProps) => {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
   } : undefined;
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'from-green-500/90 to-emerald-600/90 border-green-200 dark:border-green-800';
-      case 'in-progress': return 'from-yellow-500/90 to-orange-600/90 border-yellow-200 dark:border-yellow-800';
-      default: return 'from-slate-600/90 to-slate-700/90 border-slate-200 dark:border-slate-700';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed': return '✅';
-      case 'in-progress': return '🔄';
-      default: return '📅';
-    }
-  };
-
-  const handleEdit = () => {
-    console.log('Edit goal:', goal.id);
+  const handleStatusChange = (newStatus: string) => {
+    updateGoal(goal.id, { status: newStatus });
+    setShowDropdown(false);
   };
 
   const handleDelete = () => {
-    removeGoal(goal.id);
+    deleteGoal(goal.id);
+    setShowDropdown(false);
   };
 
-  const handleMove = (categoryId: string, semesterId: string) => {
-    moveGoal(goal.id, categoryId, semesterId);
-    setShowMoveOptions(false);
+  const getStatusIcon = () => {
+    switch (goal.status) {
+      case 'completed':
+        return <CheckCircle size={16} className="text-green-500" />;
+      case 'in-progress':
+        return <Clock size={16} className="text-blue-500" />;
+      default:
+        return <Target size={16} className="text-gray-500" />;
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (goal.status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'in-progress':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+    }
   };
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <div
-          ref={setNodeRef}
-          style={style}
-          className={`
-            relative group cursor-grab active:cursor-grabbing transform transition-all duration-200
-            ${isDragging ? 'opacity-70 scale-105 rotate-2' : 'hover:scale-[1.02]'}
-          `}
-          {...listeners}
-          {...attributes}
-        >
-          <div className={`
-            p-4 rounded-2xl shadow-sm border transition-all duration-200
-            bg-gradient-to-br ${getStatusColor(goal.status)}
-            hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-800/50
-            ${isDragging ? 'shadow-xl ring-2 ring-blue-400 dark:ring-blue-500' : ''}
-          `}>
-            {/* Status indicator */}
-            <div className="absolute -top-1 -right-1 text-sm drop-shadow-sm">
-              {getStatusIcon(goal.status)}
-            </div>
-
-            {/* Main content */}
-            <div className="flex items-start gap-3 mb-3">
-              <span className="text-xl drop-shadow-sm">{goal.icon}</span>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-white font-semibold text-sm leading-tight mb-1 drop-shadow-sm">
-                  {goal.title}
-                </h3>
-                {goal.source && (
-                  <p className="text-white/80 text-xs font-medium drop-shadow-sm">
-                    {goal.source}
-                  </p>
-                )}
-              </div>
-              <button className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/20 rounded-lg transition-all duration-200">
-                <MoreHorizontal size={14} className="text-white" />
-              </button>
-            </div>
-
-            {goal.description && (
-              <p className="text-white/90 text-xs leading-relaxed line-clamp-2 drop-shadow-sm">
-                {goal.description}
-              </p>
-            )}
+    <Card
+      ref={setNodeRef}
+      style={style}
+      className={`p-4 cursor-grab active:cursor-grabbing transition-all duration-200 hover:shadow-md ${
+        isDragging ? 'opacity-50 rotate-2 scale-105' : ''
+      } bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700`}
+      {...listeners}
+      {...attributes}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-gray-900 dark:text-white text-sm mb-2 line-clamp-2">
+            {goal.title}
+          </h4>
+          
+          <div className="flex items-center gap-2 mb-2">
+            {getStatusIcon()}
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}>
+              {goal.status.replace('-', ' ')}
+            </span>
           </div>
+
+          {goal.deadline && (
+            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+              <Calendar size={12} />
+              <span>{new Date(goal.deadline).toLocaleDateString()}</span>
+            </div>
+          )}
         </div>
-      </ContextMenuTrigger>
-      
-      <ContextMenuContent className="w-56 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-xl rounded-xl">
-        <ContextMenuItem 
-          onClick={() => setShowMoveOptions(!showMoveOptions)}
-          className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded-lg"
+
+        <div 
+          className="flex-shrink-0"
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseUp={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
-          <Move className="mr-2 h-4 w-4" />
-          Move to...
-        </ContextMenuItem>
-        
-        {showMoveOptions && (
-          <div className="pl-6 space-y-1 max-h-32 overflow-y-auto">
-            {categories.map(category => 
-              semesters.map(semester => (
-                <ContextMenuItem
-                  key={`${category.id}-${semester.id}`}
-                  onClick={() => handleMove(category.id, semester.id)}
-                  className="text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer text-xs rounded-lg"
-                >
-                  {category.name} - {semester.name}
-                </ContextMenuItem>
-              ))
-            )}
-          </div>
-        )}
-        
-        <ContextMenuItem 
-          onClick={handleEdit}
-          className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded-lg"
-        >
-          <Edit className="mr-2 h-4 w-4" />
-          Edit
-        </ContextMenuItem>
-        
-        <ContextMenuItem 
-          onClick={handleDelete}
-          className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer rounded-lg"
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
+          <DropdownMenu open={showDropdown} onOpenChange={setShowDropdown}>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <MoreVertical size={14} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align="end" 
+              className="w-48 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+              onCloseAutoFocus={(e) => e.preventDefault()}
+            >
+              <DropdownMenuItem onClick={() => handleStatusChange('not-started')}>
+                Mark as Not Started
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusChange('in-progress')}>
+                Mark as In Progress
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusChange('completed')}>
+                Mark as Completed
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={handleDelete}
+                className="text-red-600 dark:text-red-400"
+              >
+                Delete Goal
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </Card>
   );
 };
 

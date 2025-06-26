@@ -1132,30 +1132,28 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-md z-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-2xl">
-        {/* Close button for non-required steps */}
-        {!isRequiredStep && (
-          <button
-            onClick={onComplete}
-            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-white/80 dark:bg-slate-800/80 rounded-full backdrop-blur-sm transition-colors"
-          >
-            <X size={20} />
-          </button>
-        )}
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl max-h-[90vh] flex flex-col">
+        {/* Close button - always visible */}
+        <button
+          onClick={onComplete}
+          className="absolute top-4 right-4 z-10 p-2 text-white hover:text-gray-300 bg-black/20 hover:bg-black/40 rounded-full backdrop-blur-sm transition-colors"
+        >
+          <X size={20} />
+        </button>
 
         {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+        <div className="mb-6 px-2">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-sm text-white/70 font-medium">
               Step {currentStep + 1} of {steps.length}
-              {isRequiredStep && <span className="text-red-500 ml-1">*</span>}
+              {isRequiredStep && <span className="text-red-400 ml-1">*</span>}
             </span>
-            <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+            <span className="text-sm text-white/70 font-medium">
               {Math.round(((currentStep + 1) / steps.length) * 100)}% Complete
             </span>
           </div>
-          <div className="w-full bg-slate-200/50 dark:bg-slate-700/50 rounded-full h-2 backdrop-blur-sm">
+          <div className="w-full bg-white/10 rounded-full h-2">
             <div 
               className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
@@ -1163,17 +1161,17 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           </div>
         </div>
 
-        {/* Main Card */}
-        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 rounded-3xl p-8 shadow-2xl">
+        {/* Main Card - Scrollable */}
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex-1 flex flex-col min-h-0">
           {/* Optional Steps Decision Modal */}
           {showOptionalSteps && (
-            <div className="text-center space-y-6">
+            <div className="p-8 text-center space-y-6">
               <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
                 <Target size={32} className="text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Great Progress!</h2>
-                <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Great Progress!</h2>
+                <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto leading-relaxed mb-6">
                   You've completed the essential setup. Would you like to continue with optional steps to personalize your experience further?
                 </p>
               </div>
@@ -1199,23 +1197,25 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           {!showOptionalSteps && (
             <>
               {/* Header */}
-              <div className="text-center mb-8">
+              <div className="text-center p-8 pb-4 flex-shrink-0">
                 <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <currentStepData.icon size={28} className="text-white" />
                 </div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{currentStepData.title}</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{currentStepData.title}</h1>
                 {!isRequiredStep && (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">This step is optional - you can skip it</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">This step is optional - you can skip it</p>
                 )}
               </div>
 
-              {/* Content */}
-              <div className="mb-8">
-                {currentStepData.content}
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto px-8 pb-4">
+                <div className="space-y-6">
+                  {currentStepData.content}
+                </div>
               </div>
 
-              {/* Navigation */}
-              <div className="flex justify-between items-center">
+              {/* Navigation - Fixed at bottom */}
+              <div className="flex justify-between items-center p-8 pt-4 border-t dark:border-gray-800 flex-shrink-0">
                 <Button
                   onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                   disabled={currentStep === 0}
@@ -1231,7 +1231,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                     <Button
                       onClick={() => setCurrentStep(currentStep + 1)}
                       variant="ghost"
-                      className="flex items-center gap-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-6 py-3 rounded-xl"
+                      className="flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-6 py-3 rounded-xl"
                     >
                       <SkipForward size={16} />
                       Skip
