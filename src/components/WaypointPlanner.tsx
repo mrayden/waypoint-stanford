@@ -194,7 +194,7 @@ const WaypointPlanner = () => {
         <DragOverlay>
           {activeGoal && (
             <div className="transform rotate-2 scale-110 animate-pulse">
-              <GoalCard goal={activeGoal} isDragging />
+              <GoalCard goal={activeGoal} isDragging={true} />
             </div>
           )}
         </DragOverlay>

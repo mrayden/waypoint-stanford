@@ -11,17 +11,18 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { useGoalStore } from '../store/goalStore';
+import { Goal } from '../types/Goal';
 
-const GoalCard = ({ goal }: { goal: any }) => {
+const GoalCard = ({ goal, isDragging }: { goal: Goal; isDragging?: boolean }) => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const { updateGoal, deleteGoal } = useGoalStore();
+  const { updateGoal, removeGoal } = useGoalStore();
 
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
-    isDragging,
+    isDragging: dndIsDragging,
   } = useDraggable({
     id: goal.id,
   });
@@ -30,13 +31,13 @@ const GoalCard = ({ goal }: { goal: any }) => {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
   } : undefined;
 
-  const handleStatusChange = (newStatus: string) => {
+  const handleStatusChange = (newStatus: 'planned' | 'in-progress' | 'completed') => {
     updateGoal(goal.id, { status: newStatus });
     setShowDropdown(false);
   };
 
   const handleDelete = () => {
-    deleteGoal(goal.id);
+    removeGoal(goal.id);
     setShowDropdown(false);
   };
 
@@ -47,34 +48,36 @@ const GoalCard = ({ goal }: { goal: any }) => {
       case 'in-progress':
         return <Clock size={16} className="text-blue-500" />;
       default:
-        return <Target size={16} className="text-gray-500" />;
+        return <Target size={16} className="text-muted-foreground" />;
     }
   };
 
   const getStatusColor = () => {
     switch (goal.status) {
       case 'completed':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+        return 'bg-green-500/10 text-green-700 dark:text-green-400';
       case 'in-progress':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+        return 'bg-blue-500/10 text-blue-700 dark:text-blue-400';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+        return 'bg-muted text-muted-foreground';
     }
   };
+
+  const isCurrentlyDragging = isDragging || dndIsDragging;
 
   return (
     <Card
       ref={setNodeRef}
       style={style}
       className={`p-4 cursor-grab active:cursor-grabbing transition-all duration-200 hover:shadow-md ${
-        isDragging ? 'opacity-50 rotate-2 scale-105' : ''
-      } bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700`}
+        isCurrentlyDragging ? 'opacity-50 rotate-2 scale-105' : ''
+      } bg-card border`}
       {...listeners}
       {...attributes}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-gray-900 dark:text-white text-sm mb-2 line-clamp-2">
+          <h4 className="font-medium text-foreground text-sm mb-2 line-clamp-2">
             {goal.title}
           </h4>
           
@@ -86,7 +89,7 @@ const GoalCard = ({ goal }: { goal: any }) => {
           </div>
 
           {goal.deadline && (
-            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Calendar size={12} />
               <span>{new Date(goal.deadline).toLocaleDateString()}</span>
             </div>
@@ -104,7 +107,7 @@ const GoalCard = ({ goal }: { goal: any }) => {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="h-8 w-8 p-0 hover:bg-accent"
                 onMouseDown={(e) => e.stopPropagation()}
               >
                 <MoreVertical size={14} />
@@ -112,11 +115,11 @@ const GoalCard = ({ goal }: { goal: any }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               align="end" 
-              className="w-48 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+              className="w-48"
               onCloseAutoFocus={(e) => e.preventDefault()}
             >
-              <DropdownMenuItem onClick={() => handleStatusChange('not-started')}>
-                Mark as Not Started
+              <DropdownMenuItem onClick={() => handleStatusChange('planned')}>
+                Mark as Planned
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleStatusChange('in-progress')}>
                 Mark as In Progress
@@ -126,7 +129,7 @@ const GoalCard = ({ goal }: { goal: any }) => {
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={handleDelete}
-                className="text-red-600 dark:text-red-400"
+                className="text-destructive"
               >
                 Delete Goal
               </DropdownMenuItem>
