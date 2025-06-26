@@ -7,13 +7,13 @@ import { useOnboarding } from '../hooks/useOnboarding';
 const Index = () => {
   const { isOnboardingComplete, completeOnboarding } = useOnboarding();
 
-  if (!isOnboardingComplete) {
-    return <OnboardingFlow onComplete={completeOnboarding} />;
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <WaypointPlanner />
+      
+      {!isOnboardingComplete && (
+        <OnboardingFlow onComplete={completeOnboarding} />
+      )}
     </div>
   );
 };

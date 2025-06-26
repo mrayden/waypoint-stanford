@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, GraduationCap, User, MapPin, Heart, Target, Building, DollarSign, TrendingUp, School, BookOpen, Calendar, SkipForward } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GraduationCap, User, MapPin, Heart, Target, Building, DollarSign, TrendingUp, School, BookOpen, Calendar, SkipForward, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { saveUserData } from '../utils/cookieUtils';
@@ -44,6 +44,7 @@ interface HighSchool {
 
 const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [showOptionalSteps, setShowOptionalSteps] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -367,12 +368,12 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       icon: GraduationCap,
       content: (
         <div className="text-center space-y-6">
-          <div className="w-20 h-20 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center mx-auto">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
             <GraduationCap size={40} className="text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white mb-3">Plan Your Academic Journey</h2>
-            <p className="text-slate-300 max-w-md mx-auto">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Plan Your Academic Journey</h2>
+            <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
               Waypoint helps you visualize and organize your path to college and beyond. 
               Let's start by getting to know you better.
             </p>
@@ -386,26 +387,26 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
               Full Name
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-4 py-4 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter your full name"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
               Email Address
             </label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-4 py-4 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter your email"
             />
           </div>
@@ -1079,6 +1080,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
   const currentStepData = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
+  const isRequiredStep = currentStep < 5; // First 5 steps are required
   const canProceed = () => {
     switch (currentStep) {
       case 0: return true;
@@ -1086,111 +1088,186 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       case 2: return formData.location;
       case 3: return formData.location === 'International' || formData.selectedState;
       case 4: return formData.grade && (formData.location === 'International' || formData.schoolType);
-      case 5: return formData.gpa;
-      case 6: return formData.financialSituation;
-      case 7: return true; // Made optional with skip button
-      case 8: return true; // Made optional with skip button
-      case 9: return true; // Made optional with skip button
-      case 10: return true; // Made optional with skip button
-      case 11: return true; // Made optional with skip button
-      case 12: return true; // Degrees are optional
-      default: return false;
+      default: return true;
     }
   };
 
-  const isOptionalStep = () => {
-    return [5, 7, 8, 9, 10, 11, 12].includes(currentStep);
+  const handleFinishRequired = () => {
+    if (currentStep === 4) {
+      // Show option to continue or finish after required steps
+      setShowOptionalSteps(true);
+    }
   };
 
-  const handleSkip = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
+  const handleSkipOptional = () => {
+    saveUserData({
+      name: formData.name,
+      email: formData.email,
+      grade: formData.grade,
+      location: formData.location,
+      selectedState: formData.selectedState,
+      currentSchool: formData.currentSchool,
+      schoolType: formData.schoolType,
+      gpa: formData.gpa,
+      apCourses: formData.apCourses,
+      ibCourses: formData.ibCourses,
+      regularCourses: formData.regularCourses,
+      collegePrepCourses: formData.collegePrepCourses,
+      extracurriculars: formData.extracurriculars,
+      summerPlans: formData.summerPlans,
+      financialSituation: formData.financialSituation,
+      interests: formData.interests,
+      goals: formData.goals,
+      targetUniversities: formData.targetUniversities,
+      targetDegrees: formData.targetDegrees,
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+    });
+    onComplete();
+  };
+
+  const handleContinueOptional = () => {
+    setShowOptionalSteps(false);
+    setCurrentStep(5);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-md z-50 flex items-center justify-center p-6">
       <div className="w-full max-w-2xl">
+        {/* Close button for non-required steps */}
+        {!isRequiredStep && (
+          <button
+            onClick={onComplete}
+            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-white/80 dark:bg-slate-800/80 rounded-full backdrop-blur-sm transition-colors"
+          >
+            <X size={20} />
+          </button>
+        )}
+
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">
               Step {currentStep + 1} of {steps.length}
+              {isRequiredStep && <span className="text-red-500 ml-1">*</span>}
             </span>
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">
               {Math.round(((currentStep + 1) / steps.length) * 100)}% Complete
             </span>
           </div>
-          <div className="w-full bg-slate-700 rounded-full h-2">
+          <div className="w-full bg-slate-200/50 dark:bg-slate-700/50 rounded-full h-2 backdrop-blur-sm">
             <div 
-              className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
             />
           </div>
         </div>
 
         {/* Main Card */}
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 shadow-2xl">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <currentStepData.icon size={24} className="text-white" />
+        <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/50 dark:border-slate-700/50 rounded-3xl p-8 shadow-2xl">
+          {/* Optional Steps Decision Modal */}
+          {showOptionalSteps && (
+            <div className="text-center space-y-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+                <Target size={32} className="text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Great Progress!</h2>
+                <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed mb-6">
+                  You've completed the essential setup. Would you like to continue with optional steps to personalize your experience further?
+                </p>
+              </div>
+              <div className="flex gap-4 justify-center">
+                <Button
+                  onClick={handleSkipOptional}
+                  variant="outline"
+                  className="px-8 py-3 rounded-xl"
+                >
+                  Start Planning
+                </Button>
+                <Button
+                  onClick={handleContinueOptional}
+                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500"
+                >
+                  Continue Setup
+                </Button>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">{currentStepData.title}</h1>
-            {isOptionalStep() && (
-              <p className="text-sm text-slate-400">This step is optional - you can skip and add this information later</p>
-            )}
-          </div>
+          )}
 
-          {/* Content */}
-          <div className="mb-8">
-            {currentStepData.content}
-          </div>
+          {/* Regular Step Content */}
+          {!showOptionalSteps && (
+            <>
+              {/* Header */}
+              <div className="text-center mb-8">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <currentStepData.icon size={28} className="text-white" />
+                </div>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{currentStepData.title}</h1>
+                {!isRequiredStep && (
+                  <p className="text-sm text-slate-500 dark:text-slate-400">This step is optional - you can skip it</p>
+                )}
+              </div>
 
-          {/* Navigation */}
-          <div className="flex justify-between items-center">
-            <Button
-              onClick={handlePrev}
-              disabled={currentStep === 0}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <ChevronLeft size={16} />
-              Previous
-            </Button>
+              {/* Content */}
+              <div className="mb-8">
+                {currentStepData.content}
+              </div>
 
-            <div className="flex gap-3">
-              {isOptionalStep() && !isLastStep && (
+              {/* Navigation */}
+              <div className="flex justify-between items-center">
                 <Button
-                  onClick={handleSkip}
-                  variant="ghost"
-                  className="flex items-center gap-2 text-slate-400 hover:text-white"
+                  onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
+                  disabled={currentStep === 0}
+                  variant="outline"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl"
                 >
-                  <SkipForward size={16} />
-                  Skip for now
+                  <ChevronLeft size={16} />
+                  Previous
                 </Button>
-              )}
 
-              {isLastStep ? (
-                <Button
-                  onClick={handleFinish}
-                  disabled={!canProceed()}
-                  className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500"
-                >
-                  Complete Setup
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  disabled={!canProceed()}
-                  className="flex items-center gap-2"
-                >
-                  Next
-                  <ChevronRight size={16} />
-                </Button>
-              )}
-            </div>
-          </div>
+                <div className="flex gap-3">
+                  {!isRequiredStep && !isLastStep && (
+                    <Button
+                      onClick={() => setCurrentStep(currentStep + 1)}
+                      variant="ghost"
+                      className="flex items-center gap-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-6 py-3 rounded-xl"
+                    >
+                      <SkipForward size={16} />
+                      Skip
+                    </Button>
+                  )}
+
+                  {isLastStep ? (
+                    <Button
+                      onClick={handleSkipOptional}
+                      disabled={!canProceed()}
+                      className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 shadow-lg"
+                    >
+                      Complete Setup
+                    </Button>
+                  ) : currentStep === 4 ? (
+                    <Button
+                      onClick={handleFinishRequired}
+                      disabled={!canProceed()}
+                      className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 shadow-lg"
+                    >
+                      Continue
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => setCurrentStep(currentStep + 1)}
+                      disabled={!canProceed()}
+                      className="flex items-center gap-2 px-6 py-3 rounded-xl"
+                    >
+                      Next
+                      <ChevronRight size={16} />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
