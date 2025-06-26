@@ -83,12 +83,12 @@ const WaypointPlanner = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">W</span>
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">W</span>
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-foreground tracking-tight">Waypoint</h1>
-                  <span className="text-xs text-muted-foreground font-medium">Plan Your Academic Journey</span>
+                  <span className="text-xs text-muted-foreground font-medium">College Stat Boost & Academic Map</span>
                 </div>
               </div>
               

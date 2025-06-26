@@ -372,8 +372,8 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
             <GraduationCap size={40} className="text-white" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Plan Your Academic Journey</h2>
-            <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">College Stat Boost & Academic Map</h2>
+            <p className="text-slate-700 dark:text-slate-300 max-w-md mx-auto leading-relaxed">
               Waypoint helps you visualize and organize your path to college and beyond. 
               Let's start by getting to know you better.
             </p>
@@ -387,26 +387,26 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+            <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3">
               Full Name
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-4 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-4 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter your full name"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+            <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3">
               Email Address
             </label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-4 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-4 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Enter your email"
             />
           </div>
@@ -419,7 +419,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               Are you currently located in the United States?
             </label>
             <div className="grid grid-cols-1 gap-3">
@@ -428,7 +428,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                 className={`p-4 rounded-lg border text-left transition-all ${
                   formData.location === 'US'
                     ? 'bg-indigo-600 border-indigo-500 text-white'
-                    : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                    : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500'
                 }`}
               >
                 <div className="font-medium">Yes, I'm in the United States</div>
@@ -439,7 +439,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                 className={`p-4 rounded-lg border text-left transition-all ${
                   formData.location === 'International'
                     ? 'bg-orange-600 border-orange-500 text-white'
-                    : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                    : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500'
                 }`}
               >
                 <div className="font-medium">No, I'm located outside the US</div>
@@ -447,8 +447,8 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               </button>
             </div>
             {formData.location === 'International' && (
-              <div className="mt-4 p-4 bg-orange-900/20 border border-orange-600/30 rounded-lg">
-                <p className="text-orange-200 text-sm">
+              <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-600/30 rounded-lg">
+                <p className="text-orange-800 dark:text-orange-200 text-sm">
                   Note: Waypoint is currently optimized for US-based students. While you can still use the platform, 
                   some features like local high school data and specific financial aid information may not be applicable.
                 </p>
@@ -464,10 +464,10 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               Which state are you located in?
             </label>
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               This helps us find your local high schools and provide relevant information.
             </p>
             <Select
@@ -499,7 +499,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               What grade are you currently in?
             </label>
             <div className="grid grid-cols-1 gap-3">
@@ -510,7 +510,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className={`p-4 rounded-lg border text-left transition-all ${
                     formData.grade === grade
                       ? 'bg-indigo-600 border-indigo-500 text-white'
-                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500'
                   }`}
                 >
                   {grade}
@@ -521,7 +521,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
           {formData.location === 'US' && formData.selectedState && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-4">
+              <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
                 What type of school do you attend?
               </label>
               <div className="grid grid-cols-1 gap-3 mb-4">
@@ -530,7 +530,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className={`p-4 rounded-lg border text-left transition-all ${
                     formData.schoolType === 'public'
                       ? 'bg-indigo-600 border-indigo-500 text-white'
-                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500'
                   }`}
                 >
                   <div className="font-medium">Public School</div>
@@ -541,7 +541,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className={`p-4 rounded-lg border text-left transition-all ${
                     formData.schoolType === 'private'
                       ? 'bg-orange-600 border-orange-500 text-white'
-                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500'
                   }`}
                 >
                   <div className="font-medium">Private School</div>
@@ -552,7 +552,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className={`p-4 rounded-lg border text-left transition-all ${
                     formData.schoolType === 'custom'
                       ? 'bg-green-600 border-green-500 text-white'
-                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500'
                   }`}
                 >
                   <div className="font-medium">Can't find my school</div>
@@ -570,7 +570,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                     className={`w-full p-3 rounded-lg border transition-all mb-4 ${
                       loadHighSchools 
                         ? 'bg-indigo-600 border-indigo-500 text-white' 
-                        : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                        : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500'
                     }`}
                     disabled={isLoadingSchools}
                   >
@@ -586,7 +586,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                         value={schoolSearch}
                         onChange={(e) => setSchoolSearch(e.target.value)}
                         placeholder="Search your high school..."
-                        className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
                       />
                       
                       {isLoadingSchools ? (
@@ -600,7 +600,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                               className={`w-full p-3 rounded-lg border text-left transition-all ${
                                 formData.currentSchool === school.name
                                   ? 'bg-indigo-600 border-indigo-500 text-white'
-                                  : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                                  : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500'
                               }`}
                             >
                               <div className="font-medium">{school.name}</div>
@@ -618,7 +618,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
               {(formData.schoolType === 'private' || formData.schoolType === 'custom') && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-2">
                     Enter your school name
                   </label>
                   <input
@@ -626,7 +626,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                     value={formData.currentSchool}
                     onChange={(e) => setFormData({ ...formData, currentSchool: e.target.value })}
                     placeholder="Enter your school name..."
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                 </div>
               )}
@@ -641,7 +641,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               What is your current unweighted GPA range?
             </label>
             <div className="grid grid-cols-2 gap-3 mb-6">
@@ -652,7 +652,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className={`p-3 rounded-lg border text-center transition-all ${
                     formData.gpa === gpa
                       ? 'bg-indigo-600 border-indigo-500 text-white'
-                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500'
                   }`}
                 >
                   {gpa}
@@ -662,17 +662,17 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               Course Types You're Taking or Planning
             </label>
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Select courses based on their level. Advanced courses (AP/IB/Honors) can boost your weighted GPA.
             </p>
             
             <div className="space-y-6">
               {/* AP Courses */}
               <div>
-                <h4 className="text-white font-medium mb-3">AP (Advanced Placement) Courses</h4>
+                <h4 className="text-slate-900 dark:text-white font-medium mb-3">AP (Advanced Placement) Courses</h4>
                 <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
                   {apCourses.map(course => (
                     <button
@@ -685,7 +685,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                       className={`p-2 rounded-lg border text-left transition-all text-sm ${
                         formData.apCourses.includes(course)
                           ? 'bg-green-600 border-green-500 text-white'
-                          : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                          : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-green-400 dark:hover:border-green-500'
                       }`}
                     >
                       {course}
@@ -696,7 +696,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
               {/* IB Courses */}
               <div>
-                <h4 className="text-white font-medium mb-3">IB (International Baccalaureate) Courses</h4>
+                <h4 className="text-slate-900 dark:text-white font-medium mb-3">IB (International Baccalaureate) Courses</h4>
                 <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
                   {ibCourses.map(course => (
                     <button
@@ -709,7 +709,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                       className={`p-2 rounded-lg border text-left transition-all text-sm ${
                         formData.ibCourses.includes(course)
                           ? 'bg-blue-600 border-blue-500 text-white'
-                          : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                          : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-500'
                       }`}
                     >
                       {course}
@@ -720,7 +720,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
               {/* College Prep/Honors Courses */}
               <div>
-                <h4 className="text-white font-medium mb-3">Honors/College Prep Courses</h4>
+                <h4 className="text-slate-900 dark:text-white font-medium mb-3">Honors/College Prep Courses</h4>
                 <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
                   {collegePrepCourses.map(course => (
                     <button
@@ -733,7 +733,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                       className={`p-2 rounded-lg border text-left transition-all text-sm ${
                         formData.collegePrepCourses.includes(course)
                           ? 'bg-purple-600 border-purple-500 text-white'
-                          : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                          : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-purple-400 dark:hover:border-purple-500'
                       }`}
                     >
                       {course}
@@ -744,7 +744,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
               {/* Regular Courses */}
               <div>
-                <h4 className="text-white font-medium mb-3">Regular/Standard Courses</h4>
+                <h4 className="text-slate-900 dark:text-white font-medium mb-3">Regular/Standard Courses</h4>
                 <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
                   {regularCourses.map(course => (
                     <button
@@ -757,7 +757,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                       className={`p-2 rounded-lg border text-left transition-all text-sm ${
                         formData.regularCourses.includes(course)
                           ? 'bg-gray-600 border-gray-500 text-white'
-                          : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                          : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-gray-400 dark:hover:border-gray-500'
                       }`}
                     >
                       {course}
@@ -768,8 +768,8 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
             </div>
           </div>
 
-          <div className="p-4 bg-amber-900/20 border border-amber-600/30 rounded-lg">
-            <p className="text-amber-200 text-sm">
+          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-600/30 rounded-lg">
+            <p className="text-amber-800 dark:text-amber-200 text-sm">
               Tip: Advanced courses (AP/IB/Honors) typically add weight to your GPA. 
               Taking challenging courses shows colleges you're ready for rigorous academics!
             </p>
@@ -783,7 +783,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               How would you describe your financial situation for college?
             </label>
             <div className="space-y-3">
@@ -794,15 +794,15 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className={`w-full p-3 rounded-lg border text-left transition-all ${
                     formData.financialSituation === situation
                       ? 'bg-indigo-600 border-indigo-500 text-white'
-                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-indigo-400 dark:hover:border-indigo-500'
                   }`}
                 >
                   {situation}
                 </button>
               ))}
             </div>
-            <div className="mt-4 p-4 bg-blue-900/20 border border-blue-600/30 rounded-lg">
-              <p className="text-blue-200 text-sm">
+            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-600/30 rounded-lg">
+              <p className="text-blue-800 dark:text-blue-200 text-sm">
                 This information helps us suggest appropriate universities, scholarships, and financial aid options.
               </p>
             </div>
@@ -816,7 +816,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               What subjects or fields interest you? (Select all that apply)
             </label>
             <div className="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto">
@@ -831,7 +831,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className={`p-3 rounded-lg border text-left transition-all text-sm ${
                     formData.interests.includes(interest)
                       ? 'bg-indigo-600 border-indigo-500 text-white'
-                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-indigo-400 dark:hover:border-indigo-500'
                   }`}
                 >
                   {interest}
@@ -848,7 +848,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               What are your main academic goals? (Select all that apply)
             </label>
             <div className="grid grid-cols-1 gap-3 max-h-80 overflow-y-auto">
@@ -863,7 +863,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className={`p-3 rounded-lg border text-left transition-all ${
                     formData.goals.includes(goal)
                       ? 'bg-indigo-600 border-indigo-500 text-white'
-                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-indigo-400 dark:hover:border-indigo-500'
                   }`}
                 >
                   {goal}
@@ -880,10 +880,10 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               Current Extracurricular Activities
             </label>
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Select activities you're currently involved in or planning to join. These help you stand out!
             </p>
             <div className="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto">
@@ -898,7 +898,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className={`p-3 rounded-lg border text-left transition-all text-sm ${
                     formData.extracurriculars.includes(activity)
                       ? 'bg-indigo-600 border-indigo-500 text-white'
-                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-indigo-400 dark:hover:border-indigo-500'
                   }`}
                 >
                   {activity}
@@ -915,10 +915,10 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               Summer Plans & Local Opportunities
             </label>
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               Summer activities and local opportunities are CRUCIAL for standing out in college applications. 
               These experiences often matter more than test scores - they show initiative, passion, and real-world impact.
             </p>
@@ -934,7 +934,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className={`p-3 rounded-lg border text-left transition-all ${
                     formData.summerPlans.includes(opportunity)
                       ? 'bg-purple-600 border-purple-500 text-white'
-                      : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-purple-400 dark:hover:border-purple-500'
                   }`}
                 >
                   {opportunity}
@@ -943,9 +943,9 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
             </div>
           </div>
 
-          <div className="p-4 bg-purple-900/20 border border-purple-600/30 rounded-lg">
-            <h4 className="text-purple-200 font-medium mb-2">Pro Tips for Standing Out:</h4>
-            <ul className="text-purple-200 text-sm space-y-1">
+          <div className="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-600/30 rounded-lg">
+            <h4 className="text-purple-800 dark:text-purple-200 font-medium mb-2">Pro Tips for Standing Out:</h4>
+            <ul className="text-purple-800 dark:text-purple-200 text-sm space-y-1">
               <li>• Research internships show intellectual curiosity</li>
               <li>• Starting something new demonstrates leadership</li>
               <li>• Community service shows commitment to others</li>
@@ -963,7 +963,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               Which universities are you interested in?
             </label>
             
@@ -975,7 +975,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               className={`w-full p-3 rounded-lg border transition-all mb-4 ${
                 loadUniversities 
                   ? 'bg-indigo-600 border-indigo-500 text-white' 
-                  : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                  : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-indigo-400 dark:hover:border-indigo-500'
               }`}
               disabled={isLoadingUniversities}
             >
@@ -991,7 +991,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   value={universitySearch}
                   onChange={(e) => setUniversitySearch(e.target.value)}
                   placeholder="Search universities..."
-                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
                 />
                 
                 {isLoadingUniversities ? (
@@ -1009,7 +1009,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                         className={`w-full p-3 rounded-lg border text-left transition-all ${
                           formData.targetUniversities.includes(university.name)
                             ? 'bg-indigo-600 border-indigo-500 text-white'
-                            : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                            : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-indigo-400 dark:hover:border-indigo-500'
                         }`}
                       >
                         <div className="font-medium">{university.name}</div>
@@ -1032,7 +1032,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       content: (
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-4">
+            <label className="block text-sm font-medium text-slate-800 dark:text-slate-200 mb-4">
               Are you interested in any specific degrees or certifications?
             </label>
             
@@ -1045,7 +1045,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   value={degreeSearch}
                   onChange={(e) => setDegreeSearch(e.target.value)}
                   placeholder="Search degrees and certifications..."
-                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-4"
                 />
                 
                 <div className="max-h-80 overflow-y-auto space-y-2">
@@ -1060,7 +1060,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                       className={`w-full p-3 rounded-lg border text-left transition-all ${
                         formData.targetDegrees.includes(degree.degree_title)
                           ? 'bg-indigo-600 border-indigo-500 text-white'
-                          : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-500'
+                          : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-indigo-400 dark:hover:border-indigo-500'
                       }`}
                     >
                       <div className="font-medium">{degree.degree_title}</div>
@@ -1145,15 +1145,15 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         {/* Progress Bar */}
         <div className="mb-6 px-2">
           <div className="flex justify-between items-center mb-3">
-            <span className="text-sm text-white/70 font-medium">
+            <span className="text-sm text-white/90 font-medium">
               Step {currentStep + 1} of {steps.length}
               {isRequiredStep && <span className="text-red-400 ml-1">*</span>}
             </span>
-            <span className="text-sm text-white/70 font-medium">
+            <span className="text-sm text-white/90 font-medium">
               {Math.round(((currentStep + 1) / steps.length) * 100)}% Complete
             </span>
           </div>
-          <div className="w-full bg-white/10 rounded-full h-2">
+          <div className="w-full bg-white/20 rounded-full h-2">
             <div 
               className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
