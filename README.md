@@ -1,1 +1,1 @@
-mvp for random stanford business project
+vibecoded mvp for random stanford business project
